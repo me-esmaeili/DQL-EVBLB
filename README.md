@@ -4,7 +4,7 @@ This repository contains codes and simulations related to research on load balan
 
 ## Articles
 
-1. "Optimized EVBLB Algorithm Based on Voronoi Diagram for Load Balancing" - This article presents an optimized algorithm called EVBLB, which is based on Voronoi diagrams for load balancing. It introduces an innovative approach to evenly distribute the load across the network.
+1. "EVBLB: Efficient Voronoi Tessellation-Based Load Balancing in Edge Computing Networks" - This article presents an optimized algorithm called EVBLB, which is based on Voronoi diagrams for load balancing. It introduces an innovative approach to evenly distribute the load across the network.
    •  Article Link: [IEEE Xplore](https://ieeexplore.ieee.org/abstract/document/9685358)
 
 
@@ -26,9 +26,9 @@ We welcome any contributions. If you have suggestions or improvements for the co
 
 This software is available under a license that allows for free use, distribution, and modification, with attribution to the original articles as follows:
 
-•  "Optimized EVBLB Algorithm Based on Voronoi Diagram for Load Balancing", available at IEEE Xplore.
+•  "EVBLB: Efficient Voronoi Tessellation-Based Load Balancing in Edge Computing Networks", available at IEEE Xplore.
 
-•  "Enhancing EVBLB with Reinforcement Learning: Q-Learning, Multi-Arm Bandit, and Gradient Bandit Algorithms", available at ScienceDirect.
+•  "Reinforcement learning-based dynamic load balancing in edge computing networks", available at ScienceDirect.
 
 
 For more details, please refer to the license file in the repository.

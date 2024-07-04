@@ -7,7 +7,7 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public class Server {
+public class EdgeServer {
     private final int id;
     private final double x;
     private final double y;
@@ -23,10 +23,9 @@ public class Server {
     private double gamma;
     private double deltaT;
 
-    private final List<Server> neighbors;
-    private final double remainingPower;
+    private final List<EdgeServer> neighbors;
 
-    public Server(int id, double x, double y, int maxQueueSize) {
+    public EdgeServer(int id, double x, double y, int maxQueueSize) {
         this.id = id;
         this.x = x;
         this.y = y;
@@ -38,7 +37,7 @@ public class Server {
         this.neighbors = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
         this.blocked = new LinkedList<>();
-        this.remainingPower = calculateRemainingPower(alpha, beta, gamma, deltaT);
+//        this.remainingPower = calculateRemainingPower(alpha, beta, gamma, deltaT);
     }
 
     public boolean addTask(Task task) {
@@ -50,11 +49,10 @@ public class Server {
         }
     }
 
-    public double calculateRemainingPower(double alpha, double beta, double gamma, double deltaT) {
-        double usedMemory = 0;
-        double usedDisk = 0;
-        double usedCpu = 0;
-
+    public double calculateRemainingResource(double alpha, double beta, double gamma, double deltaT) {
+        double usedMemory = 0.;
+        double usedDisk = 0.;
+        double usedCpu = 0.;
         for (Task task : taskQueue) {
             usedMemory += task.getMemory();
             usedDisk += task.getDisk();

@@ -1,7 +1,7 @@
 package ir.mesmaeili.drl.simulator;
 
 import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.model.Server;
+import ir.mesmaeili.drl.model.EdgeServer;
 import ir.mesmaeili.drl.model.Task;
 import ir.mesmaeili.drl.statistic.SimulationStatisticResult;
 import ir.mesmaeili.drl.util.VoronoiDiagram;
@@ -14,7 +14,7 @@ import java.util.*;
 @Slf4j
 @Getter
 public class Simulation {
-    private final List<Server> servers;
+    private final List<EdgeServer> edgeServers;
     private final Queue<Task> taskQueue;
     private final Scheduler scheduler;
     private final Random random;
@@ -25,7 +25,7 @@ public class Simulation {
 
     public Simulation(SimulationConfig config) {
         this.config = config;
-        this.servers = new ArrayList<>();
+        this.edgeServers = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
         this.scheduler = new Scheduler();
         this.random = new Random();
@@ -34,16 +34,18 @@ public class Simulation {
         List<Coordinate> points = voronoiDiagram.generatePoints(config.getServerCount(), config.getSpaceX(), config.getSpaceY());
         int i = 1;
         for (Coordinate point : points) {
-            Server server = new Server(i++, point.getX(), point.getY(), config.getServerCount());
-            servers.add(server);
-            simulationStatisticResult.addServer(server);
+            EdgeServer edgeServer = new EdgeServer(i++, point.getX(), point.getY(), config.getServerCount());
+            edgeServers.add(edgeServer);
+            simulationStatisticResult.addServer(edgeServer);
         }
     }
 
-    private void generateTasks() {
+    private void generateTasks(double R_Delta) {
         int numberOfTasks = getPoissonRandom(taskPoissonMean);
         for (int i = 0; i < numberOfTasks; i++) {
             Task task = new Task();
+            double arrivalTime = random.nextDouble() * R_Delta;
+            task.setArrivalTime(arrivalTime);
             taskQueue.add(task);
             simulationStatisticResult.addTask(task);
         }
@@ -65,9 +67,9 @@ public class Simulation {
         long round = 1L;
         while (totalSimulationTime >= totalTime) {
             log.info("Start to round {} at time:{}", round, totalTime);
-            generateTasks();
+            generateTasks(config.getR_Delta());
             log.info("Tasks are generated at time " + totalTime);
-            scheduler.scheduleTasks(servers, taskQueue, config.getR_Delta());
+            scheduler.scheduleTasks(edgeServers, taskQueue, config.getR_Delta());
             totalTime += config.getR_Delta();
             round++;
             try {

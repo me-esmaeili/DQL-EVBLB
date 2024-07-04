@@ -1,6 +1,6 @@
 package ir.mesmaeili.drl.simulator;
 
-import ir.mesmaeili.drl.model.Server;
+import ir.mesmaeili.drl.model.EdgeServer;
 import ir.mesmaeili.drl.model.Task;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,13 +17,13 @@ public class Scheduler {
         blockedQueue = new LinkedList<>();
     }
 
-    public void scheduleTasks(List<Server> servers, Queue<Task> taskQueue, double R_Delta) {
+    public void scheduleTasks(List<EdgeServer> edgeServers, Queue<Task> taskQueue, double R_Delta) {
         while (!taskQueue.isEmpty()) {
             Task task = taskQueue.poll();
             boolean taskScheduled = false;
-            for (Server server : servers) {
-                if (server.addTask(task)) {
-                    log.info("Assign task {} to server {}", task.getId(), server.getId());
+            for (EdgeServer edgeServer : edgeServers) {
+                if (edgeServer.addTask(task)) {
+                    log.info("Assign task {} to server {}", task.getId(), edgeServer.getId());
                     taskScheduled = true;
                     break;
                 }
@@ -34,18 +34,18 @@ public class Scheduler {
             }
         }
 
-        for (Server server : servers) {
-            new Thread(() -> server.executeTasks(R_Delta)).start();
+        for (EdgeServer edgeServer : edgeServers) {
+            new Thread(() -> edgeServer.executeTasks(R_Delta)).start();
         }
     }
 
-    public static double calculateLBF(List<Server> servers, double averageCpuUtilization) {
+    public static double calculateLBF(List<EdgeServer> edgeServers, double averageCpuUtilization) {
         double sumSquaredDifferences = 0;
-        for (Server server : servers) {
-            double ui = server.calculateCpuUtilization(server.getDeltaT());
+        for (EdgeServer edgeServer : edgeServers) {
+            double ui = edgeServer.calculateCpuUtilization(edgeServer.getDeltaT());
             sumSquaredDifferences += Math.pow(ui - averageCpuUtilization, 2);
         }
-        return Math.sqrt(sumSquaredDifferences / servers.size());
+        return Math.sqrt(sumSquaredDifferences / edgeServers.size());
     }
 }
 

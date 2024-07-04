@@ -3,9 +3,7 @@ package ir.mesmaeili.drl.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.sql.Timestamp;
 import java.util.Random;
-import java.util.UUID;
 
 @Getter
 public class Task {
@@ -15,18 +13,18 @@ public class Task {
     private final double cpu; // in MHZ
 
     @Getter
-    private Long arrivalTime;
+    @Setter
+    private double arrivalTime;
     @Getter
     @Setter
-    private Long processStartTime;
+    private double processStartTime;
     @Getter
     @Setter
-    private Long finishTime;
+    private double finishTime;
 
     public Task() {
         Random rand = new Random();
         this.id = Math.abs(rand.nextLong());
-        this.arrivalTime = System.currentTimeMillis();
         this.memory = 100 + 100. * rand.nextInt(10);
         this.disk = 100 + 100. * rand.nextInt(15);
         this.cpu = 1000 + 100. * rand.nextInt(30);

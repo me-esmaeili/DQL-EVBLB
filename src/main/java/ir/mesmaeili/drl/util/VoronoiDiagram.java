@@ -1,5 +1,6 @@
 package ir.mesmaeili.drl.util;
 
+import ir.mesmaeili.drl.model.EdgeServer;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -15,21 +16,21 @@ public class VoronoiDiagram {
     private Geometry voronoiDiagram;
 
     public List<Coordinate> generatePoints(int count, int spaceWith, int spaceHeight) {
-        return generateRandomCoordinates(10, spaceWith, spaceHeight);
+        return generateRandomCoordinates(count, spaceWith, spaceHeight);
     }
 
-    public void generateDiagram(List<Coordinate> coordinates) {
+    public Geometry generateDiagram(List<Coordinate> coordinates) {
         VoronoiDiagramBuilder builder = new VoronoiDiagramBuilder();
         builder.setSites(coordinates);
-        this.voronoiDiagram = builder.getDiagram(geometryFactory);
+        return builder.getDiagram(geometryFactory);
     }
 
-    public Integer getRegion(double x, double y) {
-        Point point = geometryFactory.createPoint(new Coordinate(x, y));
+    public Geometry getRegion(Geometry voronoiDiagram, EdgeServer server) {
+        Point point = geometryFactory.createPoint(new Coordinate(server.getX(), server.getY()));
         for (int i = 0; i < voronoiDiagram.getNumGeometries(); i++) {
             Geometry cell = voronoiDiagram.getGeometryN(i);
             if (cell.contains(point)) {
-                return i;
+                return cell;
             }
         }
         return null;

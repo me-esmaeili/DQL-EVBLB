@@ -60,7 +60,6 @@ public class DeepQLearning {
         return bestAction(state);
     }
 
-    // اجرای الگوریتم
     public void run() {
         for (int episode = 0; episode < EPISODE_COUNT; episode++) {
             int state = random.nextInt(STATE_SIZE);

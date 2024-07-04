@@ -10,7 +10,7 @@ import java.util.*;
 
 @Slf4j
 @Getter
-public class MainApplication {
+public class SimulatorApp {
     public static void main(String[] args) {
         BasicConfigurator.configure();
 
@@ -18,7 +18,7 @@ public class MainApplication {
         simulationConfig.setServerCount(10);
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceX(100);
-        simulationConfig.setR_Delta(100);
+        simulationConfig.setR_Delta(2);
 
         log.info("Start simulation at {}", new Date());
         Simulation simulation = new Simulation(simulationConfig);

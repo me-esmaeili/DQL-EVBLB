@@ -10,6 +10,7 @@ public class DeepQLearning {
     private static final double ALPHA = 0.1;
     private static final double GAMMA = 0.9;
     private static final double EPSILON = 0.2;
+    private static final double EPISODE_TERMINATION_EPSILON = 0.01;
     private static final double THETA = 0.5;
     private static final double DELTA_T_MAX = 100;
     private final double[][] qTable;
@@ -66,21 +67,19 @@ public class DeepQLearning {
             while (true) {
                 int action = chooseAction(state);
                 double[] serverLoads = new double[0];
-                double lbf = calculateLBF(state, serverLoads); // محاسبه LBF
-                double reward = 1 - lbf; // محاسبه پاداش
-                int nextState = nextState(state, action); // محاسبه حالت بعدی
-                updateQTable(state, action, nextState, reward); // بهروزرسانی جدول Q
+                double lbf = calculateLBF(state, serverLoads);
+                double reward = computeReward(lbf);
+                int nextState = nextState(state, action);
+                updateQTable(state, action, nextState, reward);
+                if (Math.abs(state - nextState) < EPISODE_TERMINATION_EPSILON) {
+                    break;
+                }
                 state = nextState;
-                // شرط پایان اپیزود (نیاز به تعریف)
-//                if (...){
-//                    break;
-//                }
             }
         }
     }
 
-    public static void main(String[] args) {
-        DeepQLearning dql = new DeepQLearning();
-        dql.run();
+    private double computeReward(double lbf) {
+        return 1 - lbf;
     }
 }

@@ -1,5 +1,8 @@
 package ir.mesmaeili.drl.simulator;
 
+import ir.mesmaeili.drl.alg.LBAlgorithm;
+import ir.mesmaeili.drl.config.SimulationConfig;
+import ir.mesmaeili.drl.config.SimulationState;
 import ir.mesmaeili.drl.model.EdgeServer;
 import ir.mesmaeili.drl.model.Task;
 import lombok.extern.slf4j.Slf4j;
@@ -10,32 +13,22 @@ import java.util.Queue;
 
 @Slf4j
 public class Scheduler {
-
     private final Queue<Task> blockedQueue;
+    private final LBAlgorithm lbAlgorithm;
+    private final SimulationConfig simulationConfig;
 
-    public Scheduler() {
-        blockedQueue = new LinkedList<>();
+    public Scheduler(SimulationConfig simulationConfig, LBAlgorithm lbAlgorithm) {
+        this.lbAlgorithm = lbAlgorithm;
+        this.simulationConfig = simulationConfig;
+        this.blockedQueue = new LinkedList<>();
     }
 
-    public void scheduleTasks(List<EdgeServer> edgeServers, Queue<Task> taskQueue, double R_Delta) {
-        while (!taskQueue.isEmpty()) {
-            Task task = taskQueue.poll();
-            boolean taskScheduled = false;
-            for (EdgeServer edgeServer : edgeServers) {
-                if (edgeServer.addTask(task)) {
-                    log.info("Assign task {} to server {}", task.getId(), edgeServer.getId());
-                    taskScheduled = true;
-                    break;
-                }
-            }
-            if (!taskScheduled) {
-                log.info("task {} has been blocked", task.getId());
-                blockedQueue.add(task);
-            }
-        }
+    public void scheduleTasks(SimulationState simulationState) {
+        lbAlgorithm.dispatchTasksOverServers(simulationState);
 
-        for (EdgeServer edgeServer : edgeServers) {
-            new Thread(() -> edgeServer.executeTasks(R_Delta)).start();
+        // now execute tasks on servers
+        for (EdgeServer edgeServer : simulationState.getEdgeServers()) {
+            new Thread(() -> edgeServer.executeTasks(simulationConfig.getDeltaT())).start();
         }
     }
 

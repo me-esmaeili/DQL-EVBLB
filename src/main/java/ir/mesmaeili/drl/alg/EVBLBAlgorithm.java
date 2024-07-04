@@ -1,62 +1,50 @@
 package ir.mesmaeili.drl.alg;
 
-import ir.mesmaeili.drl.model.CloudServer;
+import ir.mesmaeili.drl.config.SimulationConfig;
+import ir.mesmaeili.drl.config.SimulationState;
 import ir.mesmaeili.drl.model.EdgeServer;
 import ir.mesmaeili.drl.model.Task;
 import ir.mesmaeili.drl.util.ServerNeighbors;
-import ir.mesmaeili.drl.util.VoronoiDiagram;
-import org.locationtech.jts.geom.Coordinate;
+import ir.mesmaeili.drl.util.VoronoiBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.List;
+import java.util.Queue;
 
-public class EVBLBAlgorithm {
-    private final List<EdgeServer> edgeServers;
-    private final CloudServer cloudServer;
-    private final List<Task> tasks;
-    private final double alpha;
-    private final double beta;
-    private final double gamma;
-    private final double deltaT;
-    private int spacePointCount;
-    private int spaceX;
-    private int spaceY;
+@Slf4j
+public class EVBLBAlgorithm implements LBAlgorithm {
+    private final SimulationConfig simulationConfig;
+    private SimulationState simulationState;
+    private final EvblbConfig config;
+    private final VoronoiBuilder vd = new VoronoiBuilder();
 
     // Constructor
-    public EVBLBAlgorithm(List<EdgeServer> edgeServers, CloudServer cloudServer, List<Task> tasks,
-                          double alpha, double beta, double gamma, double deltaT) {
-        this.edgeServers = edgeServers;
-        this.cloudServer = cloudServer;
-        this.tasks = tasks;
-        this.alpha = alpha;
-        this.beta = beta;
-        this.gamma = gamma;
-        this.deltaT = deltaT;
+    public EVBLBAlgorithm(SimulationConfig simulationConfig, EvblbConfig config) {
+        this.simulationConfig = simulationConfig;
+        this.config = config;
     }
 
-    // Main method to assign tasks
-    public void assignTasks() {
-        double Mc = getMaxCpuResource(edgeServers);
-        double Mm = getMaxMemResource(edgeServers);
-        double Md = getMaxDiskResource(edgeServers);
+    @Override
+    public void dispatchTasksOverServers(SimulationState simulationState) {
+        this.simulationState = simulationState;
+        double Mc = getMaxCpuResource(simulationState.getEdgeServers());
+        double Mm = getMaxMemResource(simulationState.getEdgeServers());
+        double Md = getMaxDiskResource(simulationState.getEdgeServers());
+
         // Assign tasks to cloud server if they exceed max resources of edge servers
-        for (Task task : tasks) {
+        for (Task task : simulationState.getTasks()) {
             if (task.getCpu() > Mc || task.getMemory() > Mm || task.getDisk() > Md) {
                 assignToLeastLoadedCloudServer(task);
             }
         }
-        // Compute the Voronoi Tessellation (VT)
-        VoronoiDiagram vd = new VoronoiDiagram();
-        List<Coordinate> points = vd.generatePoints(spacePointCount, spaceX, spaceY);
-        Geometry voronoiTesselation = vd.generateDiagram(points);
-
         // Assign remaining tasks to edge servers
         ServerNeighbors serverNeighbors;
-        for (EdgeServer e_i : edgeServers) {
+        for (EdgeServer e_i : simulationState.getEdgeServers()) {
             serverNeighbors = new ServerNeighbors(e_i);
-            List<EdgeServer> neighbors = serverNeighbors.findNeighbors(edgeServers);
+            List<EdgeServer> neighbors = serverNeighbors.findNeighbors(simulationState.getEdgeServers());
             EdgeServer e_k = getServerWithMaxRemainingResource(neighbors);
-            assignTasksInRegionToServer(vd.getRegion(voronoiTesselation, e_i), e_k);
+            assignTasksInRegionToServer(vd.getRegion(config.getVoronoiTessellation(), e_i), simulationState.getTasks(), e_k);
         }
     }
 
@@ -73,21 +61,26 @@ public class EVBLBAlgorithm {
     }
 
     private void assignToLeastLoadedCloudServer(Task task) {
-        this.cloudServer.addTask(task);
+        this.simulationState.getCloudServer().addTask(task);
     }
 
     private EdgeServer getServerWithMaxRemainingResource(List<EdgeServer> servers) {
         if (servers.isEmpty()) {
             return null;
         }
-
         EdgeServer serverWithMaxResource = servers.get(0);
-        double maxResource = serverWithMaxResource.calculateRemainingResource(alpha, beta, gamma, deltaT);
-
-        // Start from the second server since we already have the value for the first
+        double maxResource = serverWithMaxResource.calculateRemainingResource(
+                config.getAlpha(),
+                config.getBeta(),
+                config.getGamma(),
+                simulationConfig.getDeltaT());
         for (int i = 1; i < servers.size(); i++) {
             EdgeServer edgeServer = servers.get(i);
-            double currentResource = edgeServer.calculateRemainingResource(alpha, beta, gamma, deltaT);
+            double currentResource = edgeServer.calculateRemainingResource(
+                    config.getAlpha(),
+                    config.getBeta(),
+                    config.getGamma(),
+                    simulationConfig.getDeltaT());
             if (currentResource > maxResource) {
                 serverWithMaxResource = edgeServer;
                 maxResource = currentResource;
@@ -96,5 +89,17 @@ public class EVBLBAlgorithm {
         return serverWithMaxResource;
     }
 
-    private void assignTasksInRegionToServer(Geometry region, EdgeServer server) { /* ... */ }
+    private void assignTasksInRegionToServer(Geometry region,
+                                             Queue<Task> allTasks,
+                                             EdgeServer server) {
+        List<Task> regionTasks = vd.getRegionTasks(region, allTasks);
+        for (Task task : regionTasks) {
+            server.addTask(task);
+            log.info("Assign task {} in region {} to server {}",
+                    task.getId(),
+                    region.getBoundary(),
+                    server.getId());
+            break;
+        }
+    }
 }

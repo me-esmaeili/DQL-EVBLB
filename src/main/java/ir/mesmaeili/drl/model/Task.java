@@ -2,6 +2,7 @@ package ir.mesmaeili.drl.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.Random;
 
@@ -21,6 +22,9 @@ public class Task {
     @Getter
     @Setter
     private double finishTime;
+    @Getter
+    @Setter
+    private Coordinate location;
 
     public Task() {
         Random rand = new Random();

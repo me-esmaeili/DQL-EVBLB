@@ -2,6 +2,7 @@ package ir.mesmaeili.drl.model;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
 
 import java.util.*;
 
@@ -9,8 +10,7 @@ import java.util.*;
 @Getter
 public class EdgeServer {
     private final int id;
-    private final double x;
-    private final double y;
+    private final Coordinate location;
     private final double memory; // in GB
     private final double disk; // in GB
     private final double cpu; // in GHZ
@@ -25,10 +25,9 @@ public class EdgeServer {
 
     private final List<EdgeServer> neighbors;
 
-    public EdgeServer(int id, double x, double y, int maxQueueSize) {
+    public EdgeServer(int id, Coordinate location, int maxQueueSize) {
         this.id = id;
-        this.x = x;
-        this.y = y;
+        this.location = location;
         this.maxQueueSize = maxQueueSize;
         Random rand = new Random();
         this.memory = new int[]{4, 8, 16, 32}[rand.nextInt(4)];
@@ -37,15 +36,13 @@ public class EdgeServer {
         this.neighbors = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
         this.blocked = new LinkedList<>();
-//        this.remainingPower = calculateRemainingPower(alpha, beta, gamma, deltaT);
     }
 
-    public boolean addTask(Task task) {
+    public void addTask(Task task) {
         if (taskQueue.size() < this.maxQueueSize) {
             taskQueue.add(task);
-            return true;
         } else {
-            return false;
+            blocked.add(task);
         }
     }
 
@@ -65,17 +62,17 @@ public class EdgeServer {
         return 1 - (normalizedMemory + normalizedDisk + normalizedCpu);
     }
 
-    public void executeTasks(double R_Delta) {
+    public void executeTasks(double DeltaT) {
         double currentTime = 0;
         double serverProcessingSpeedMHz = this.cpu * 1000; // to MHZ
 
-        while (!taskQueue.isEmpty() && currentTime < R_Delta) {
+        while (!taskQueue.isEmpty() && currentTime < DeltaT) {
             Task task = taskQueue.peek();
             if (canExecuteTask(task)) {
                 log.info("Task {} executed by server {}", task.getId(), getId());
                 double taskProcessingRequirementMHz = task.getCpu();
                 double taskProcessingTimeSeconds = taskProcessingRequirementMHz / serverProcessingSpeedMHz;
-                if (currentTime + taskProcessingTimeSeconds <= R_Delta) {
+                if (currentTime + taskProcessingTimeSeconds <= DeltaT) {
                     taskQueue.poll();
                     long taskStartProcessingTime = System.currentTimeMillis();
                     task.setProcessStartTime(taskStartProcessingTime);
@@ -86,7 +83,7 @@ public class EdgeServer {
                 }
             } else {
                 log.info("Task {} send to Cloud to execute", task.getId());
-                blocked.add(task);  // send to cloud servers
+                blocked.add(task);
             }
         }
     }

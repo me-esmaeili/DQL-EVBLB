@@ -40,6 +40,7 @@ public class ServerNeighbors {
     }
 
     private double dist(EdgeServer e_i, EdgeServer e_j) {
-        return Math.hypot(e_i.getX() - e_j.getX(), e_i.getY() - e_j.getY());
+        return Math.hypot(e_i.getLocation().getX() - e_j.getLocation().getX(),
+                e_i.getLocation().getY() - e_j.getLocation().getY());
     }
 }

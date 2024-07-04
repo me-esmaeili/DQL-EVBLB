@@ -1,17 +1,16 @@
 package ir.mesmaeili.drl.util;
 
 import ir.mesmaeili.drl.model.EdgeServer;
+import ir.mesmaeili.drl.model.Task;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.triangulate.VoronoiDiagramBuilder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
-public class VoronoiDiagram {
+public class VoronoiBuilder {
     private final GeometryFactory geometryFactory = new GeometryFactory();
     private Geometry voronoiDiagram;
 
@@ -26,7 +25,11 @@ public class VoronoiDiagram {
     }
 
     public Geometry getRegion(Geometry voronoiDiagram, EdgeServer server) {
-        Point point = geometryFactory.createPoint(new Coordinate(server.getX(), server.getY()));
+        return getRegion(voronoiDiagram, server.getLocation());
+    }
+
+    public Geometry getRegion(Geometry voronoiDiagram, Coordinate location) {
+        Point point = geometryFactory.createPoint(location);
         for (int i = 0; i < voronoiDiagram.getNumGeometries(); i++) {
             Geometry cell = voronoiDiagram.getGeometryN(i);
             if (cell.contains(point)) {
@@ -34,6 +37,26 @@ public class VoronoiDiagram {
             }
         }
         return null;
+    }
+
+    public List<EdgeServer> getRegionServers(Geometry voronoiDiagram, Collection<EdgeServer> servers) {
+        List<EdgeServer> targetServers = new ArrayList<>();
+        for (EdgeServer server : servers) {
+            if (getRegion(voronoiDiagram, server.getLocation()) != null) {
+                targetServers.add(server);
+            }
+        }
+        return targetServers;
+    }
+
+    public List<Task> getRegionTasks(Geometry voronoiDiagram, Collection<Task> tasks) {
+        List<Task> targetTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            if (getRegion(voronoiDiagram, task.getLocation()) != null) {
+                targetTasks.add(task);
+            }
+        }
+        return targetTasks;
     }
 
     private static List<Coordinate> generateRandomCoordinates(int numberOfPoints, int width, int height) {

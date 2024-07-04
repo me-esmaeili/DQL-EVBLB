@@ -1,4 +1,3 @@
-
 # Load Balancing in Edge Networks
 
 This repository contains codes and simulations related to research on load balancing in edge networks. The following articles form the basis of this research, and the results obtained from these simulations have been directly used in these articles.
@@ -38,3 +37,15 @@ For more details, please refer to the license file in the repository.
 
 For further questions or discussions about the research, please contact:
 •  Email: [me.esmaeili@ut.ac.ir](mailto:me.esmaeili@ut.ac.ir)
+
+
+## Researcher's Google Scholar
+
+To view more of my research works, please visit my Google Scholar profile:
+•  [Google Scholar Profile](https://scholar.google.com/citations?user=-Xl8PacAAAAJ&hl=en)
+
+
+## Advisor's Google Scholar
+
+To view my advisor's research works, please visit their Google Scholar profile:
+•  [Google Scholar Profile](https://scholar.google.com/citations?user=Xfvk1SoAAAAJ&hl=en)

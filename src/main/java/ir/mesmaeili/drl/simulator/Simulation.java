@@ -63,7 +63,7 @@ public class Simulation {
             log.info("finish round {} at time: {}", round, totalTime);
         }
         simulationState.setTotalRound(round);
-        scheduler.shutdown();
+        scheduler.finish();
         return this.simulationState;
     }
 

@@ -4,6 +4,7 @@ import ir.mesmaeili.drl.alg.EVBLBAlgorithm;
 import ir.mesmaeili.drl.alg.EvblbConfig;
 import ir.mesmaeili.drl.config.SimulationConfig;
 import ir.mesmaeili.drl.config.SimulationState;
+import ir.mesmaeili.drl.result.SimulationChart;
 import ir.mesmaeili.drl.simulator.Simulation;
 import ir.mesmaeili.drl.util.VoronoiUtils;
 import lombok.Getter;
@@ -24,15 +25,19 @@ public class SimulatorApp {
         BasicConfigurator.configure();
 
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(10);
+        simulationConfig.setServerCount(50);
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceX(100);
         simulationConfig.setDeltaT(2);
-        simulationConfig.setTaskPoissonMean(10);
+        simulationConfig.setTaskPoissonMean(100);
+        simulationConfig.setTotalSimulationTime(100);
 
         log.info("Start simulation at {}", new Date());
         SimulationState result = SimulateEVBLB(simulationConfig);
         log.info("Finish simulation at {}", new Date());
+
+        SimulationChart simulationChart = new SimulationChart();
+        simulationChart.generateCharts(result);
     }
 
     private static SimulationState SimulateEVBLB(SimulationConfig simulationConfig) {

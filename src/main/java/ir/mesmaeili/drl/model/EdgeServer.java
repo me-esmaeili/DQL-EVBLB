@@ -15,9 +15,9 @@ public class EdgeServer {
     @EqualsAndHashCode.Include
     private final int id;
     private final Coordinate location;
-    private final double memory; // in GB
-    private final double disk; // in GB
-    private final double cpu; // in MHZ
+    private final double memoryCapacity; // in MB
+    private final double diskCapacity; // in GB
+    private final double processingCapacity; // in MHZ
     private final Queue<Task> taskQueue;
     private final Queue<Task> blockedQueue;
     private final SimulationConfig simulationConfig;
@@ -29,10 +29,9 @@ public class EdgeServer {
         this.id = id;
         this.location = location;
         this.simulationConfig = simulationConfig;
-        Random rand = new Random();
-        this.memory = new int[]{4, 8, 16, 32}[rand.nextInt(4)];
-        this.disk = 100. * (rand.nextInt(50) + 1);
-        this.cpu = 1000 + 100. * rand.nextInt(30);
+        this.memoryCapacity = SimulationConfig.getRandomServerMemoryInMB();
+        this.diskCapacity = SimulationConfig.getRandomServerDiskInGB();
+        this.processingCapacity = SimulationConfig.getRandomServerCpuInMhz();
         this.neighbors = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
         this.blockedQueue = new LinkedList<>();
@@ -55,9 +54,9 @@ public class EdgeServer {
             usedDisk += task.getDisk();
             usedCpu += task.getCpu() / deltaT;
         }
-        double normalizedMemory = alpha * (usedMemory / memory);
-        double normalizedDisk = beta * (usedDisk / disk);
-        double normalizedCpu = gamma * (usedCpu / cpu);
+        double normalizedMemory = alpha * (usedMemory / memoryCapacity);
+        double normalizedDisk = beta * (usedDisk / diskCapacity);
+        double normalizedCpu = gamma * (usedCpu / processingCapacity);
 
         return 1 - (normalizedMemory + normalizedDisk + normalizedCpu);
     }
@@ -70,7 +69,7 @@ public class EdgeServer {
             if (canExecuteTask(task)) {
                 log.info("Task {} executed by server {}", task.getId(), getId());
                 double taskProcessingRequirementMHz = task.getCpu();
-                double taskProcessingTimeSeconds = taskProcessingRequirementMHz / cpu;
+                double taskProcessingTimeSeconds = taskProcessingRequirementMHz / processingCapacity;
                 if (currentTime + taskProcessingTimeSeconds <= DeltaT) {
                     taskQueue.poll();
                     long taskStartProcessingTime = System.currentTimeMillis();
@@ -88,12 +87,13 @@ public class EdgeServer {
     }
 
     private boolean canExecuteTask(Task task) {
-        return this.memory <= task.getMemory() || this.disk <= task.getDisk();
+        return this.memoryCapacity >= task.getMemory() ||
+                (this.diskCapacity - this.taskQueue.stream().mapToDouble(Task::getDisk).sum()) >= task.getDisk();
     }
 
     private double calculateCpuUtilization(double deltaT) {
         double totalCpuUsage = taskQueue.stream().mapToDouble(Task::getCpu).sum();
-        return Math.min(1, totalCpuUsage / (cpu * deltaT));
+        return Math.min(1, totalCpuUsage / (processingCapacity * deltaT));
     }
 
     public void calculateMetrics(double time) {

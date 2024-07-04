@@ -57,7 +57,7 @@ public class Scheduler {
     public static double calculateLBF(List<EdgeServer> edgeServers, double averageCpuUtilization) {
         double sumSquaredDifferences = 0;
         for (EdgeServer edgeServer : edgeServers) {
-            double ui = edgeServer.getDisk();
+            double ui = edgeServer.getDiskCapacity();
             sumSquaredDifferences += Math.pow(ui - averageCpuUtilization, 2);
         }
         return Math.sqrt(sumSquaredDifferences / edgeServers.size());

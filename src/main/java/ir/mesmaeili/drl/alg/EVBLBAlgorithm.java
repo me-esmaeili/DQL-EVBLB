@@ -49,15 +49,15 @@ public class EVBLBAlgorithm implements LBAlgorithm {
     }
 
     private double getMaxCpuResource(List<EdgeServer> servers) {
-        return servers.stream().mapToDouble(EdgeServer::getCpu).max().getAsDouble();
+        return servers.stream().mapToDouble(EdgeServer::getProcessingCapacity).max().getAsDouble();
     }
 
     private double getMaxMemResource(List<EdgeServer> servers) {
-        return servers.stream().mapToDouble(EdgeServer::getMemory).max().getAsDouble();
+        return servers.stream().mapToDouble(EdgeServer::getMemoryCapacity).max().getAsDouble();
     }
 
     private double getMaxDiskResource(List<EdgeServer> servers) {
-        return servers.stream().mapToDouble(EdgeServer::getDisk).max().getAsDouble();
+        return servers.stream().mapToDouble(EdgeServer::getDiskCapacity).max().getAsDouble();
     }
 
     private void assignToLeastLoadedCloudServer(Task task) {

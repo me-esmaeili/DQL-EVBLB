@@ -14,8 +14,7 @@ import java.util.Queue;
 @Getter
 @Setter
 public class SimulationState {
-    private int currentRound;
-    private int currentTime;
+    private int totalRound = 0;
     private List<EdgeServer> edgeServers = new ArrayList<>();
     private Queue<Task> tasks = new LinkedList<>();
     private CloudServer cloudServer = new CloudServer();

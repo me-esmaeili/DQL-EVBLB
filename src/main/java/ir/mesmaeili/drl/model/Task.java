@@ -1,5 +1,7 @@
 package ir.mesmaeili.drl.model;
 
+import ir.mesmaeili.drl.config.SimulationConfig;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.jts.geom.Coordinate;
@@ -8,9 +10,13 @@ import java.util.Random;
 
 @Getter
 public class Task {
+    @NotNull
     private final long id;
+    @NotNull
     private final double memory; // in MB
+    @NotNull
     private final double disk; // in GB
+    @NotNull
     private final double cpu; // in MHZ
 
     @Getter
@@ -29,8 +35,8 @@ public class Task {
     public Task() {
         Random rand = new Random();
         this.id = Math.abs(rand.nextLong());
-        this.memory = 100 + 100. * rand.nextInt(10);
-        this.disk = 100 + 100. * rand.nextInt(15);
-        this.cpu = 1000 + 100. * rand.nextInt(30);
+        this.memory = SimulationConfig.getRandomTaskMemoryInMB();
+        this.disk = SimulationConfig.getRandomTaskDiskInMB();
+        this.cpu = SimulationConfig.getRandomTaskCpuInMhz();
     }
 }

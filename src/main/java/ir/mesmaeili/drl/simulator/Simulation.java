@@ -46,7 +46,7 @@ public class Simulation {
 
     public SimulationState run() {
         double totalTime = 0.;
-        long round = 1L;
+        int round = 1;
         double totalSimulationTime = simulationConfig.getTotalSimulationTime();
         while (totalSimulationTime >= totalTime) {
             log.info("Start to round {} at time:{}", round, totalTime);
@@ -62,6 +62,7 @@ public class Simulation {
             }
             log.info("finish round {} at time: {}", round, totalTime);
         }
+        simulationState.setTotalRound(round);
         scheduler.shutdown();
         return this.simulationState;
     }

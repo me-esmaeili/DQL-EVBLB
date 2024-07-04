@@ -9,10 +9,10 @@ import java.util.UUID;
 
 @Getter
 public class Task {
-    private final UUID id;
-    private final double memory;
-    private final double disk;
-    private final double cpu;
+    private final long id;
+    private final double memory; // in MB
+    private final double disk; // in GB
+    private final double cpu; // in MHZ
 
     @Getter
     private Long arrivalTime;
@@ -25,10 +25,10 @@ public class Task {
 
     public Task() {
         Random rand = new Random();
-        id = UUID.randomUUID();
-        arrivalTime = System.currentTimeMillis();
-        memory = 100 + 100 * rand.nextInt(10);
-        disk = 500 + 100 * rand.nextInt(15);
-        cpu = 1000 + 100 * rand.nextInt(30);
+        this.id = Math.abs(rand.nextLong());
+        this.arrivalTime = System.currentTimeMillis();
+        this.memory = 100 + 100. * rand.nextInt(10);
+        this.disk = 100 + 100. * rand.nextInt(15);
+        this.cpu = 1000 + 100. * rand.nextInt(30);
     }
 }

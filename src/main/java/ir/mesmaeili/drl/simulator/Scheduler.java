@@ -1,4 +1,4 @@
-package ir.mesmaeili.drl;
+package ir.mesmaeili.drl.simulator;
 
 import ir.mesmaeili.drl.model.Server;
 import ir.mesmaeili.drl.model.Task;

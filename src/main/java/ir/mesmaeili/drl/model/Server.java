@@ -9,14 +9,14 @@ import java.util.*;
 @Getter
 public class Server {
     private final int id;
-    private static final int MAX_QUEUE_SIZE = 200;
     private final double x;
     private final double y;
-    private double memory;
-    private double disk;
-    private double cpu;
+    private final double memory; // in GB
+    private final double disk; // in GB
+    private final double cpu; // in GHZ
     private final Queue<Task> taskQueue;
     private final Queue<Task> blocked;
+    private final int maxQueueSize;
 
     private double alpha;
     private double beta;
@@ -26,10 +26,15 @@ public class Server {
     private final List<Server> neighbors;
     private final double remainingPower;
 
-    public Server(int id, double x, double y) {
+    public Server(int id, double x, double y, int maxQueueSize) {
         this.id = id;
         this.x = x;
         this.y = y;
+        this.maxQueueSize = maxQueueSize;
+        Random rand = new Random();
+        this.memory = new int[]{4, 8, 16, 32}[rand.nextInt(4)];
+        this.disk = 100. * (rand.nextInt(50) + 1);
+        this.cpu = 1000 + 100. * rand.nextInt(30);
         this.neighbors = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
         this.blocked = new LinkedList<>();
@@ -37,7 +42,7 @@ public class Server {
     }
 
     public boolean addTask(Task task) {
-        if (taskQueue.size() < MAX_QUEUE_SIZE) {
+        if (taskQueue.size() < this.maxQueueSize) {
             taskQueue.add(task);
             return true;
         } else {

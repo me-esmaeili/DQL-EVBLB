@@ -5,7 +5,7 @@ import ir.mesmaeili.drl.config.SimulationState;
 import ir.mesmaeili.drl.model.EdgeServer;
 import ir.mesmaeili.drl.model.Task;
 import ir.mesmaeili.drl.util.ServerNeighbors;
-import ir.mesmaeili.drl.util.VoronoiBuilder;
+import ir.mesmaeili.drl.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Geometry;
 
@@ -17,7 +17,7 @@ public class EVBLBAlgorithm implements LBAlgorithm {
     private final SimulationConfig simulationConfig;
     private SimulationState simulationState;
     private final EvblbConfig config;
-    private final VoronoiBuilder vd = new VoronoiBuilder();
+    private final VoronoiUtils vd = new VoronoiUtils();
 
     // Constructor
     public EVBLBAlgorithm(SimulationConfig simulationConfig, EvblbConfig config) {
@@ -99,7 +99,6 @@ public class EVBLBAlgorithm implements LBAlgorithm {
                     task.getId(),
                     region.getBoundary(),
                     server.getId());
-            break;
         }
     }
 }

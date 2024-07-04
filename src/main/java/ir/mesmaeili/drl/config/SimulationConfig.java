@@ -12,8 +12,6 @@ public class SimulationConfig {
     @NotNull
     private int BSCount = 1000;
     @NotNull
-    private int pointCount = 2000;
-    @NotNull
     private int serverMaxQueueSize = 200;
     @NotNull
     private int spaceX;
@@ -21,4 +19,8 @@ public class SimulationConfig {
     private int spaceY;
     @NotNull
     private double deltaT;
+    @NotNull
+    private double totalSimulationTime = 20.; // in seconds
+    @NotNull
+    private double taskPoissonMean = 10;
 }

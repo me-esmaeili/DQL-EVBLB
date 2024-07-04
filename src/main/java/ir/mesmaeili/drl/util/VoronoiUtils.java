@@ -10,12 +10,15 @@ import org.locationtech.jts.triangulate.VoronoiDiagramBuilder;
 
 import java.util.*;
 
-public class VoronoiBuilder {
+public class VoronoiUtils {
     private final GeometryFactory geometryFactory = new GeometryFactory();
-    private Geometry voronoiDiagram;
 
     public List<Coordinate> generatePoints(int count, int spaceWith, int spaceHeight) {
         return generateRandomCoordinates(count, spaceWith, spaceHeight);
+    }
+
+    public Coordinate generatePoint(int spaceWith, int spaceHeight) {
+        return generateRandomCoordinates(1, spaceWith, spaceHeight).get(0);
     }
 
     public Geometry generateDiagram(List<Coordinate> coordinates) {

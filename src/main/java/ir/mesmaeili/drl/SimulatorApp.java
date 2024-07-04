@@ -3,8 +3,9 @@ package ir.mesmaeili.drl;
 import ir.mesmaeili.drl.alg.EVBLBAlgorithm;
 import ir.mesmaeili.drl.alg.EvblbConfig;
 import ir.mesmaeili.drl.config.SimulationConfig;
+import ir.mesmaeili.drl.config.SimulationState;
 import ir.mesmaeili.drl.simulator.Simulation;
-import ir.mesmaeili.drl.util.VoronoiBuilder;
+import ir.mesmaeili.drl.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.BasicConfigurator;
@@ -17,7 +18,7 @@ import java.util.List;
 @Getter
 public class SimulatorApp {
 
-    private static final VoronoiBuilder vb = new VoronoiBuilder();
+    private static final VoronoiUtils vb = new VoronoiUtils();
 
     public static void main(String[] args) {
         BasicConfigurator.configure();
@@ -27,20 +28,21 @@ public class SimulatorApp {
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceX(100);
         simulationConfig.setDeltaT(2);
+        simulationConfig.setTaskPoissonMean(10);
 
         log.info("Start simulation at {}", new Date());
-        SimulateEVBLB(simulationConfig);
+        SimulationState result = SimulateEVBLB(simulationConfig);
         log.info("Finish simulation at {}", new Date());
     }
 
-    private static void SimulateEVBLB(SimulationConfig simulationConfig) {
+    private static SimulationState SimulateEVBLB(SimulationConfig simulationConfig) {
         EvblbConfig config = new EvblbConfig();
         // Compute the Voronoi Tessellation (VT)
-        List<Coordinate> points = vb.generatePoints(simulationConfig.getPointCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+        List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
         config.setVoronoiTessellation(vb.generateDiagram(points));
         EVBLBAlgorithm evblbAlgorithm = new EVBLBAlgorithm(simulationConfig, config);
 
         Simulation simulation = new Simulation(evblbAlgorithm, simulationConfig);
-        simulation.run();
+        return simulation.run();
     }
 }

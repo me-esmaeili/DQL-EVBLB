@@ -11,8 +11,7 @@ public class CloudServer {
     private final Queue<Task> taskQueue = new LinkedList<>();
     private final long maxQueueSize = Long.MAX_VALUE;
 
-    public boolean addTask(Task task) {
+    public void addTask(Task task) {
         taskQueue.add(task);
-        return true;
     }
 }

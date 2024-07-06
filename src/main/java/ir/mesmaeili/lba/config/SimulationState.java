@@ -1,8 +1,8 @@
-package ir.mesmaeili.drl.config;
+package ir.mesmaeili.lba.config;
 
-import ir.mesmaeili.drl.model.CloudServer;
-import ir.mesmaeili.drl.model.EdgeServer;
-import ir.mesmaeili.drl.model.Task;
+import ir.mesmaeili.lba.model.CloudServer;
+import ir.mesmaeili.lba.model.EdgeServer;
+import ir.mesmaeili.lba.model.Task;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,6 +15,7 @@ import java.util.Queue;
 @Setter
 public class SimulationState {
     private int currentRound = 0;
+    private float currentSimulationTime = 0;
     private List<EdgeServer> edgeServers = new ArrayList<>();
     private Queue<Task> tasks = new LinkedList<>();
     private CloudServer cloudServer = new CloudServer();

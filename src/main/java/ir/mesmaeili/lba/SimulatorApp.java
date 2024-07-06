@@ -1,12 +1,12 @@
-package ir.mesmaeili.drl;
+package ir.mesmaeili.lba;
 
-import ir.mesmaeili.drl.alg.EVBLBAlgorithm;
-import ir.mesmaeili.drl.alg.EvblbConfig;
-import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.result.SimulationChart;
-import ir.mesmaeili.drl.simulator.Simulation;
-import ir.mesmaeili.drl.statistic.SimulationStatisticResult;
-import ir.mesmaeili.drl.util.VoronoiUtils;
+import ir.mesmaeili.lba.algorithm.EVBLBAlgorithm;
+import ir.mesmaeili.lba.algorithm.EvblbConfig;
+import ir.mesmaeili.lba.config.SimulationConfig;
+import ir.mesmaeili.lba.result.SimulationChart;
+import ir.mesmaeili.lba.simulator.Simulation;
+import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
+import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.log4j.BasicConfigurator;
@@ -25,12 +25,11 @@ public class SimulatorApp {
         BasicConfigurator.configure();
 
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(50);
+        simulationConfig.setServerCount(30);
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceX(100);
-        simulationConfig.setDeltaT(2);
-        simulationConfig.setTaskPoissonMean(100);
-        simulationConfig.setTotalSimulationTime(100);
+        simulationConfig.setDeltaT(1.2);
+        simulationConfig.setTotalSimulationTime(1000);
 
         log.info("Start simulation at {}", new Date());
         SimulationStatisticResult result = SimulateEVBLB(simulationConfig);

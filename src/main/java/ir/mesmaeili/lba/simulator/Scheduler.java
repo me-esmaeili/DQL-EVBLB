@@ -1,9 +1,9 @@
-package ir.mesmaeili.drl.simulator;
+package ir.mesmaeili.lba.simulator;
 
-import ir.mesmaeili.drl.alg.LBAlgorithm;
-import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.config.SimulationState;
-import ir.mesmaeili.drl.model.EdgeServer;
+import ir.mesmaeili.lba.algorithm.LBAlgorithm;
+import ir.mesmaeili.lba.config.SimulationConfig;
+import ir.mesmaeili.lba.config.SimulationState;
+import ir.mesmaeili.lba.model.EdgeServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -29,14 +29,14 @@ public class Scheduler {
         }
     }
 
-    public void scheduleTasks(SimulationState simulationState, double time) {
+    public void scheduleTasks(SimulationState simulationState) {
         lbAlgorithm.dispatchTasksOverServers(simulationState);
-        TaskCompleteListener listener = server -> server.calculateMetrics(time);
+        TaskCompleteListener listener = server -> server.calculateMetrics(simulationState.getCurrentSimulationTime());
 
         // now execute tasks on servers
         for (EdgeServer edgeServer : simulationState.getEdgeServers()) {
             ExecutorService executor = serverExecutors.get(edgeServer);
-            executor.submit(new TaskExecutor(edgeServer, simulationConfig.getDeltaT(), listener));
+            executor.submit(new TaskExecutor(edgeServer, simulationConfig.getDeltaT(), simulationState.getCurrentSimulationTime(), listener));
         }
     }
 

@@ -1,4 +1,4 @@
-package ir.mesmaeili.drl.result;
+package ir.mesmaeili.lba.result;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

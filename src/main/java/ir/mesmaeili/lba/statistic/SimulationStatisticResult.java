@@ -1,11 +1,11 @@
-package ir.mesmaeili.drl.statistic;
+package ir.mesmaeili.lba.statistic;
 
-import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.model.EdgeServer;
-import ir.mesmaeili.drl.model.Task;
-import ir.mesmaeili.drl.result.SimulationMetricResult;
-import ir.mesmaeili.drl.util.CSVUtils;
-import ir.mesmaeili.drl.util.MetricUtil;
+import ir.mesmaeili.lba.config.SimulationConfig;
+import ir.mesmaeili.lba.model.EdgeServer;
+import ir.mesmaeili.lba.model.Task;
+import ir.mesmaeili.lba.result.SimulationMetricResult;
+import ir.mesmaeili.lba.util.CSVUtils;
+import ir.mesmaeili.lba.util.MetricUtil;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +21,7 @@ public class SimulationStatisticResult {
     private List<EdgeServer> edgeServers = new ArrayList<>();
 
     public SimulationStatisticResult(long startTime, SimulationConfig config) {
+        this.startTime = startTime;
         this.DeltaT = config.getDeltaT();
     }
 
@@ -46,8 +47,8 @@ public class SimulationStatisticResult {
                     averageQueueSizeMap.computeIfAbsent(time, k -> new ArrayList<>()).add(metric.getQueueSize());
                     averageCpuUtilizationMap.computeIfAbsent(time, k -> new ArrayList<>()).add(metric.getCpuUtilization());
                     averageBlockedTasksMap.computeIfAbsent(time, k -> new ArrayList<>()).add(metric.getBlockedTaskCount());
-                    averageResponseTimeMap.computeIfAbsent(time, k -> new ArrayList<>()).add(MetricUtil.calculateAverageResponseTime(server));
-                    averageMakespanTimeMap.computeIfAbsent(time, k -> new ArrayList<>()).add(MetricUtil.calculateAverageMakespanTime(server));
+                    averageResponseTimeMap.computeIfAbsent(time, k -> new ArrayList<>()).add(MetricUtil.calculateAverageResponseTime(time, server));
+                    averageMakespanTimeMap.computeIfAbsent(time, k -> new ArrayList<>()).add(MetricUtil.calculateAverageMakespanTime(time, server));
                 })
         );
 

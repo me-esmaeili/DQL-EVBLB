@@ -1,11 +1,12 @@
-package ir.mesmaeili.drl.model;
+package ir.mesmaeili.lba.model;
 
-import ir.mesmaeili.drl.config.SimulationConfig;
+import ir.mesmaeili.lba.config.SimulationConfig;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.jts.geom.Coordinate;
 
+import java.math.BigDecimal;
 import java.util.Random;
 
 @Getter
@@ -38,5 +39,13 @@ public class Task {
         this.memory = SimulationConfig.getRandomTaskMemoryInMB();
         this.disk = SimulationConfig.getRandomTaskDiskInMB();
         this.cpu = SimulationConfig.getRandomTaskCpuInMhz();
+    }
+
+    public double getResponseTime() {
+        return new BigDecimal(processStartTime - arrivalTime).doubleValue();
+    }
+
+    public double getMakespanTime() {
+        return finishTime - arrivalTime;
     }
 }

@@ -1,4 +1,4 @@
-package ir.mesmaeili.drl.alg;
+package ir.mesmaeili.lba.algorithm;
 
 import java.util.Arrays;
 import java.util.Random;

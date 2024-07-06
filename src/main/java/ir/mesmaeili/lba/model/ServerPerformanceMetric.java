@@ -1,4 +1,4 @@
-package ir.mesmaeili.drl.model;
+package ir.mesmaeili.lba.model;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

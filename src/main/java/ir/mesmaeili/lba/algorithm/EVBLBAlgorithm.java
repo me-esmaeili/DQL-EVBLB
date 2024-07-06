@@ -1,11 +1,11 @@
-package ir.mesmaeili.drl.alg;
+package ir.mesmaeili.lba.algorithm;
 
-import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.config.SimulationState;
-import ir.mesmaeili.drl.model.EdgeServer;
-import ir.mesmaeili.drl.model.Task;
-import ir.mesmaeili.drl.util.ServerNeighbors;
-import ir.mesmaeili.drl.util.VoronoiUtils;
+import ir.mesmaeili.lba.config.SimulationConfig;
+import ir.mesmaeili.lba.config.SimulationState;
+import ir.mesmaeili.lba.model.EdgeServer;
+import ir.mesmaeili.lba.model.Task;
+import ir.mesmaeili.lba.util.ServerNeighbors;
+import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Geometry;
 

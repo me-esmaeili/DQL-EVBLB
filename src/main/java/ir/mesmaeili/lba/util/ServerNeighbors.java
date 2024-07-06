@@ -1,6 +1,6 @@
-package ir.mesmaeili.drl.util;
+package ir.mesmaeili.lba.util;
 
-import ir.mesmaeili.drl.model.EdgeServer;
+import ir.mesmaeili.lba.model.EdgeServer;
 
 import java.util.ArrayList;
 import java.util.List;

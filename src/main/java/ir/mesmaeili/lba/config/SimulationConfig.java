@@ -1,8 +1,9 @@
-package ir.mesmaeili.drl.config;
+package ir.mesmaeili.lba.config;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +30,9 @@ public class SimulationConfig {
     @NotNull
     private double deltaT;
     @NotNull
-    private double totalSimulationTime; // in seconds
+    private float totalSimulationTime; // in seconds
     @NotNull
-    private double taskPoissonMean = 10;
+    private static Pair<Integer, Integer> taskUniformRange = Pair.of(100, 200);
 
     public static double getRandomServerMemoryInMB() {
         return 1000. * (serverMemoryCapacityRange).get(rand.nextInt(serverMemoryCapacityRange.size() - 1));
@@ -55,5 +56,9 @@ public class SimulationConfig {
 
     public static double getRandomTaskCpuInMhz() {
         return 100 + 100. * rand.nextInt(10);
+    }
+
+    public static int getTaskCountUniformRandom() {
+        return taskUniformRange.getKey() + rand.nextInt(taskUniformRange.getValue() - taskUniformRange.getKey() + 1);
     }
 }

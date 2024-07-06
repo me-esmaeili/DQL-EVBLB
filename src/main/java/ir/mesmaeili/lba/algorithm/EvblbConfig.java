@@ -1,4 +1,4 @@
-package ir.mesmaeili.drl.alg;
+package ir.mesmaeili.lba.algorithm;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

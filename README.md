@@ -8,7 +8,7 @@ This repository contains codes and simulations related to research on load balan
    •  Article Link: [IEEE Xplore](https://ieeexplore.ieee.org/abstract/document/9685358)
 
 
-2. "Enhancing EVBLB with Reinforcement Learning: Q-Learning, Multi-Arm Bandit, and Gradient Bandit Algorithms" - The second article develops the EVBLB algorithm further and addresses its challenges by presenting three reinforcement learning-based algorithms: Q-Learning, Multi-Arm Bandit, and Gradient Bandit (GB). These algorithms aim to optimize load balancing dynamically in response to environmental changes.
+2. "Reinforcement learning-based dynamic load balancing in edge computing networks" - The second article develops the EVBLB algorithm further and addresses its challenges by presenting three reinforcement learning-based algorithms: Q-Learning, Multi-Arm Bandit, and Gradient Bandit (GB). These algorithms aim to optimize load balancing dynamically in response to environmental changes.
    •  Article Link: [ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0140366424001312)
 
 

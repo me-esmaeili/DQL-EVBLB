@@ -1,12 +1,12 @@
-package ir.mesmaeili.drl.simulator;
+package ir.mesmaeili.lba.simulator;
 
-import ir.mesmaeili.drl.alg.LBAlgorithm;
-import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.config.SimulationState;
-import ir.mesmaeili.drl.model.EdgeServer;
-import ir.mesmaeili.drl.model.Task;
-import ir.mesmaeili.drl.statistic.SimulationStatisticResult;
-import ir.mesmaeili.drl.util.VoronoiUtils;
+import ir.mesmaeili.lba.algorithm.LBAlgorithm;
+import ir.mesmaeili.lba.config.SimulationConfig;
+import ir.mesmaeili.lba.config.SimulationState;
+import ir.mesmaeili.lba.model.EdgeServer;
+import ir.mesmaeili.lba.model.Task;
+import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
+import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -45,42 +45,44 @@ public class Simulation {
     }
 
     public SimulationStatisticResult run() {
-        double totalTime = 0.;
-        int round = 1;
+        float currentSimulationTime = 0f;
+        int curentRound = 1;
         double totalSimulationTime = simulationConfig.getTotalSimulationTime();
-        while (totalSimulationTime >= totalTime) {
-            log.info("Start to round {} at time:{}", round, totalTime);
+        while (totalSimulationTime >= currentSimulationTime) {
+            log.info("Start to round {} at time:{}", curentRound, currentSimulationTime);
+            simulationState.setCurrentSimulationTime(currentSimulationTime); // store simulation time in range [0,totalRound*DeltaT]
 
             // generate tasks
-            Queue<Task> tasks = generateTasks();
+            Queue<Task> tasks = generateTasks(currentSimulationTime);
             simulationState.addTasks(tasks);
             simulationStatisticResult.addTasks(tasks);
-            log.info("Tasks are generated at time " + totalTime);
+            log.info("Tasks are generated at time " + currentSimulationTime);
 
             // schedule tasks over servers
-            scheduler.scheduleTasks(this.simulationState, totalTime);
-            totalTime += simulationConfig.getDeltaT();
-            round++;
+            scheduler.scheduleTasks(this.simulationState);
+            currentSimulationTime += simulationConfig.getDeltaT();
+            curentRound++;
             try {
                 Thread.sleep((long) (simulationConfig.getDeltaT() * 1000)); // wait to next round execution
             } catch (InterruptedException e) {
                 log.error("Error:", e);
             }
-            log.info("finish round {} at time: {}", round, totalTime);
-            simulationState.setCurrentRound(round);
+            log.info("finish round {} at time: {}", curentRound, currentSimulationTime);
+            simulationState.setCurrentRound(curentRound);
         }
-        simulationStatisticResult.setTotalRounds(round);
+        simulationStatisticResult.setTotalRounds(curentRound);
         scheduler.finish();
         return this.simulationStatisticResult;
     }
 
-    private Queue<Task> generateTasks() {
+    private Queue<Task> generateTasks(double currentSimulationTime) {
         Queue<Task> taskQueue = new LinkedList<>();
-        int numberOfTasks = getPoissonRandom(getSimulationConfig().getTaskPoissonMean());
+        int numberOfTasks = SimulationConfig.getTaskCountUniformRandom();
         // First, assign one task to each point
         for (int i = 0; i < Math.min(numberOfTasks, this.points.size()); i++) {
             Task task = new Task();
-            double arrivalTime = random.nextDouble() * simulationConfig.getDeltaT();
+            // task arrival time in range [currentSimulationTime, currentSimulationTime+ U(0,DeltaT)
+            double arrivalTime = currentSimulationTime + (random.nextDouble() * simulationConfig.getDeltaT());
             task.setArrivalTime(arrivalTime);
             task.setLocation(points.get(i));
             taskQueue.add(task);
@@ -95,16 +97,5 @@ public class Simulation {
             taskQueue.add(task);
         }
         return taskQueue;
-    }
-
-    private int getPoissonRandom(double mean) {
-        double L = Math.exp(-mean);
-        int k = 0;
-        double p = 1.0;
-        do {
-            p = p * random.nextDouble();
-            k++;
-        } while (p > L);
-        return k - 1;
     }
 }

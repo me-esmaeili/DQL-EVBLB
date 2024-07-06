@@ -1,7 +1,7 @@
-package ir.mesmaeili.drl.result;
+package ir.mesmaeili.lba.result;
 
-import ir.mesmaeili.drl.statistic.SimulationStatisticResult;
-import ir.mesmaeili.drl.util.MetricUtil;
+import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
+import ir.mesmaeili.lba.util.MetricUtil;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;

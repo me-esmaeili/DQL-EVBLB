@@ -1,6 +1,6 @@
-package ir.mesmaeili.drl.simulator;
+package ir.mesmaeili.lba.simulator;
 
-import ir.mesmaeili.drl.model.EdgeServer;
+import ir.mesmaeili.lba.model.EdgeServer;
 
 public interface TaskCompleteListener {
     void onTaskComplete(EdgeServer server);

@@ -44,14 +44,20 @@ public class Simulation {
         this.scheduler = new Scheduler(simulationConfig, this.simulationState, lbAlgorithm);
     }
 
-    public SimulationState run() {
+    public SimulationStatisticResult run() {
         double totalTime = 0.;
         int round = 1;
         double totalSimulationTime = simulationConfig.getTotalSimulationTime();
         while (totalSimulationTime >= totalTime) {
             log.info("Start to round {} at time:{}", round, totalTime);
-            simulationState.addTasks(generateTasks());
+
+            // generate tasks
+            Queue<Task> tasks = generateTasks();
+            simulationState.addTasks(tasks);
+            simulationStatisticResult.addTasks(tasks);
             log.info("Tasks are generated at time " + totalTime);
+
+            // schedule tasks over servers
             scheduler.scheduleTasks(this.simulationState, totalTime);
             totalTime += simulationConfig.getDeltaT();
             round++;
@@ -61,10 +67,11 @@ public class Simulation {
                 log.error("Error:", e);
             }
             log.info("finish round {} at time: {}", round, totalTime);
+            simulationState.setCurrentRound(round);
         }
-        simulationState.setTotalRound(round);
+        simulationStatisticResult.setTotalRounds(round);
         scheduler.finish();
-        return this.simulationState;
+        return this.simulationStatisticResult;
     }
 
     private Queue<Task> generateTasks() {
@@ -77,7 +84,6 @@ public class Simulation {
             task.setArrivalTime(arrivalTime);
             task.setLocation(points.get(i));
             taskQueue.add(task);
-            simulationStatisticResult.addTask(task);
         }
         // If there are more tasks left, distribute them randomly among the points
         for (int i = points.size(); i < numberOfTasks; i++) {
@@ -87,7 +93,6 @@ public class Simulation {
             Coordinate location = voronoiUtils.generatePoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
             task.setLocation(location);
             taskQueue.add(task);
-            simulationStatisticResult.addTask(task);
         }
         return taskQueue;
     }

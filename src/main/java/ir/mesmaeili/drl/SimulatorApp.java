@@ -3,9 +3,9 @@ package ir.mesmaeili.drl;
 import ir.mesmaeili.drl.alg.EVBLBAlgorithm;
 import ir.mesmaeili.drl.alg.EvblbConfig;
 import ir.mesmaeili.drl.config.SimulationConfig;
-import ir.mesmaeili.drl.config.SimulationState;
 import ir.mesmaeili.drl.result.SimulationChart;
 import ir.mesmaeili.drl.simulator.Simulation;
+import ir.mesmaeili.drl.statistic.SimulationStatisticResult;
 import ir.mesmaeili.drl.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -33,14 +33,16 @@ public class SimulatorApp {
         simulationConfig.setTotalSimulationTime(100);
 
         log.info("Start simulation at {}", new Date());
-        SimulationState result = SimulateEVBLB(simulationConfig);
+        SimulationStatisticResult result = SimulateEVBLB(simulationConfig);
         log.info("Finish simulation at {}", new Date());
 
         SimulationChart simulationChart = new SimulationChart();
         simulationChart.generateCharts(result);
+
+        result.writeToCsv();
     }
 
-    private static SimulationState SimulateEVBLB(SimulationConfig simulationConfig) {
+    private static SimulationStatisticResult SimulateEVBLB(SimulationConfig simulationConfig) {
         EvblbConfig config = new EvblbConfig();
         // Compute the Voronoi Tessellation (VT)
         List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());

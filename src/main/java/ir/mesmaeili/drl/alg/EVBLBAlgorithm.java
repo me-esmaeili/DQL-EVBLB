@@ -89,16 +89,11 @@ public class EVBLBAlgorithm implements LBAlgorithm {
         return serverWithMaxResource;
     }
 
-    private void assignTasksInRegionToServer(Geometry region,
-                                             Queue<Task> allTasks,
-                                             EdgeServer server) {
+    private void assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {
         List<Task> regionTasks = vd.getRegionTasks(region, allTasks);
         for (Task task : regionTasks) {
             server.addTask(task);
-            log.info("Assign task {} in region {} to server {}",
-                    task.getId(),
-                    region.getBoundary(),
-                    server.getId());
         }
+        log.info("Assign {} tasks in region {} to server {}", regionTasks.size(), region.getBoundary(), server.getId());
     }
 }

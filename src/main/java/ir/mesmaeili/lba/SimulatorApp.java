@@ -25,7 +25,7 @@ public class SimulatorApp {
         BasicConfigurator.configure();
 
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(10);
+        simulationConfig.setServerCount(20);
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceX(100);
         simulationConfig.setDeltaT(2.);

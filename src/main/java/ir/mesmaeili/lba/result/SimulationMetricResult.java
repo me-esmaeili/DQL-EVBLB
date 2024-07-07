@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @AllArgsConstructor
@@ -14,9 +13,10 @@ import java.util.Map;
 @Getter
 @Setter
 public class SimulationMetricResult {
-    private Map<Double, List<Integer>> averageQueueSizeMap = new HashMap<>();
-    private Map<Double, List<Double>> averageCpuUtilizationMap = new HashMap<>();
-    private Map<Double, List<Integer>> averageBlockedTasksMap = new HashMap<>();
-    private Map<Double, List<Double>> averageResponseTimeMap = new HashMap<>();
-    private Map<Double, List<Double>> averageMakespanTimeMap = new HashMap<>();
+    private Map<Double, Double> LBFOverTimeMap = new HashMap<>();
+    private Map<Double, Double> throughputOverTimeMap = new HashMap<>();
+    private Map<Double, Double> blockingRateOverTimeMap = new HashMap<>();
+    private Map<Double, Double> averageQueueSizeOverTimeMap = new HashMap<>();
+    private Map<Double, Double> averageResponseTimeOverTimeMap = new HashMap<>();
+    private Map<Double, Double> averageMakespanTimeOverTimeMap = new HashMap<>();
 }

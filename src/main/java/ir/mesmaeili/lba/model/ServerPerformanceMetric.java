@@ -11,5 +11,4 @@ public class ServerPerformanceMetric {
     @EqualsAndHashCode.Include
     private double cpuUtilization;
     private int queueSize;
-    private int blockedTaskCount;
 }

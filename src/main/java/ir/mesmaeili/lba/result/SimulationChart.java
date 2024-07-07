@@ -1,7 +1,6 @@
 package ir.mesmaeili.lba.result;
 
 import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
-import ir.mesmaeili.lba.util.MetricUtil;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -9,47 +8,39 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
-import java.util.List;
 import java.util.Map;
 
 public class SimulationChart {
     public void generateCharts(SimulationStatisticResult result) {
         // Initialize series for the charts
         XYSeries queueSizeSeries = new XYSeries("Average Queue Size");
-        XYSeries blockedTasksSeries = new XYSeries("Average Blocked Tasks");
+        XYSeries blockingRate = new XYSeries("Blocking Rate");
         XYSeries cpuUtilizationSeries = new XYSeries("Load Balancing Factor(LBF)");
         XYSeries responseTimeSeries = new XYSeries("Average Response Time");
         XYSeries makeSpanTimeSeries = new XYSeries("Average Makespan Time");
+        XYSeries throughputTimeSeries = new XYSeries("Average Throughput Time");
 
         SimulationMetricResult metricResult = result.toMetricResult();
 
         // Calculate and add data to series
-        addDataToSeries(metricResult.getAverageQueueSizeMap(), queueSizeSeries);
-        addLBFDataToSeries(metricResult.getAverageCpuUtilizationMap(), cpuUtilizationSeries);
-        addDataToSeries(metricResult.getAverageBlockedTasksMap(), blockedTasksSeries);
-        addDataToSeries(metricResult.getAverageResponseTimeMap(), responseTimeSeries);
-        addDataToSeries(metricResult.getAverageMakespanTimeMap(), makeSpanTimeSeries);
+        addDataToSeries(metricResult.getAverageQueueSizeOverTimeMap(), queueSizeSeries);
+        addDataToSeries(metricResult.getLBFOverTimeMap(), cpuUtilizationSeries);
+        addDataToSeries(metricResult.getBlockingRateOverTimeMap(), blockingRate);
+        addDataToSeries(metricResult.getAverageResponseTimeOverTimeMap(), responseTimeSeries);
+        addDataToSeries(metricResult.getAverageMakespanTimeOverTimeMap(), makeSpanTimeSeries);
+        addDataToSeries(metricResult.getThroughputOverTimeMap(), throughputTimeSeries);
 
         // Draw the charts
         drawChart(queueSizeSeries, "Average Queue Size Over Time", "Time", "Queue Size");
         drawChart(cpuUtilizationSeries, "Average LBF Over Time", "Time", "LBF");
-        drawChart(blockedTasksSeries, "Average Blocked Tasks Over Time", "Time", "Blocked Tasks");
+        drawChart(blockingRate, "Blocking Rate Over Time", "Time", "Blocking Rate");
         drawChart(responseTimeSeries, "Average Response Time Over Time", "Time", "Response Time");
         drawChart(makeSpanTimeSeries, "Average Makespan Time Over Time", "Time", "Makespan Time");
+        drawChart(throughputTimeSeries, "Average Throughput Time Over Time", "Time", "Throughput(#/s)");
     }
 
-    private <T extends Number> void addDataToSeries(Map<Double, List<T>> dataMap, XYSeries series) {
-        dataMap.forEach((time, dataList) -> {
-            double avg = dataList.stream().mapToDouble(Number::doubleValue).sum() / dataList.size();
-            series.add((double) time, avg);
-        });
-    }
-
-    public static void addLBFDataToSeries(Map<Double, List<Double>> cpuUtilizationMap, XYSeries series) {
-        cpuUtilizationMap.forEach((time, dataList) -> {
-            double avg = MetricUtil.calculateLBF(dataList, time);
-            series.add((double) time, avg);
-        });
+    private <T extends Number> void addDataToSeries(Map<Double, Double> dataMap, XYSeries series) {
+        dataMap.forEach((time, data) -> series.add((double) time, data));
     }
 
     private void drawChart(XYSeries series, String chartTitle, String xAxisLabel, String yAxisLabel) {

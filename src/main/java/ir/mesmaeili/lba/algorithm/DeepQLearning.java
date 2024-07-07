@@ -1,5 +1,19 @@
 package ir.mesmaeili.lba.algorithm;
 
+import ir.mesmaeili.lba.config.SimulationConfig;
+import ir.mesmaeili.lba.config.SimulationState;
+import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
+import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
+import org.deeplearning4j.nn.conf.layers.DenseLayer;
+import org.deeplearning4j.nn.conf.layers.OutputLayer;
+import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
+import org.deeplearning4j.nn.weights.WeightInit;
+import org.nd4j.linalg.activations.Activation;
+import org.nd4j.linalg.api.ndarray.INDArray;
+import org.nd4j.linalg.factory.Nd4j;
+import org.nd4j.linalg.learning.config.Adam;
+import org.nd4j.linalg.lossfunctions.LossFunctions;
+
 import java.util.Arrays;
 import java.util.Random;
 
@@ -16,14 +30,32 @@ public class DeepQLearning {
     private final double[][] qTable;
     private final Random random;
 
+    private MultiLayerNetwork model;
+
+
     public DeepQLearning() {
         qTable = new double[STATE_SIZE][ACTION_SIZE];
         random = new Random();
-    }
+        // Define the neural network configuration
+        MultiLayerConfiguration conf = new NeuralNetConfiguration.Builder()
+                .seed(12345)
+                .weightInit(WeightInit.XAVIER)
+                .updater(new Adam(0.001))
+                .list()
+                .layer(0, new DenseLayer.Builder().nIn(STATE_SIZE).nOut(20)
+                        .activation(Activation.RELU)
+                        .build())
+                .layer(1, new DenseLayer.Builder().nIn(20).nOut(10)
+                        .activation(Activation.RELU)
+                        .build())
+                .layer(2, new OutputLayer.Builder(LossFunctions.LossFunction.MSE)
+                        .activation(Activation.IDENTITY)
+                        .nIn(10).nOut(ACTION_SIZE).build())
+                .build();
 
-    private double calculateLBF(int regionIndex, double[] serverLoads) {
-        double meanLoad = Arrays.stream(serverLoads).average().orElse(0);
-        return Math.sqrt(Arrays.stream(serverLoads).map(u -> Math.pow(u - meanLoad, 2)).sum() / serverLoads.length);
+        // Create the network
+        model = new MultiLayerNetwork(conf);
+        model.init();
     }
 
     private double estimatedReward(double fi, double deltaTj) {
@@ -38,17 +70,27 @@ public class DeepQLearning {
         }
     }
 
+
     private int bestAction(int state) {
-        int bestAction = 0;
-        double maxQValue = Double.NEGATIVE_INFINITY;
-        for (int action = 0; action < ACTION_SIZE; action++) {
-            if (qTable[state][action] > maxQValue) {
-                maxQValue = qTable[state][action];
-                bestAction = action;
-            }
-        }
-        return bestAction;
+        // Convert state to neural network input format
+        INDArray input = Nd4j.create(qTable[state]);
+        // Get Q-values from the network
+        INDArray qValues = model.output(input);
+        // Find the best action
+        return Nd4j.argMax(qValues).getInt(0);
     }
+
+//    private int bestAction(int state) {
+//        int bestAction = 0;
+//        double maxQValue = Double.NEGATIVE_INFINITY;
+//        for (int action = 0; action < ACTION_SIZE; action++) {
+//            if (qTable[state][action] > maxQValue) {
+//                maxQValue = qTable[state][action];
+//                bestAction = action;
+//            }
+//        }
+//        return bestAction;
+//    }
 
     private void updateQTable(int state, int action, int nextState, double reward) {
         double maxNextQValue = Arrays.stream(qTable[nextState]).max().orElse(0);
@@ -60,13 +102,12 @@ public class DeepQLearning {
         return bestAction(state);
     }
 
-    public void run() {
+    public void run(SimulationConfig simulationConfig, SimulationState simulationState) {
         for (int episode = 0; episode < EPISODE_COUNT; episode++) {
             int state = random.nextInt(STATE_SIZE);
             while (true) {
                 int action = chooseAction(state);
-                double[] serverLoads = new double[0];
-                double lbf = calculateLBF(state, serverLoads);
+                double lbf = simulationState.calculateLBF(simulationConfig.getDeltaT());
                 double reward = computeReward(lbf);
                 int nextState = nextState(state, action);
                 updateQTable(state, action, nextState, reward);

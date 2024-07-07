@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-public class CSVUtils {
+public class CsvUtils {
     public static <K, V> void writeMapOfListToCsv(String fileName, Map<K, List<V>> map) {
         try (CSVWriter writer = new CSVWriter(new FileWriter(fileName))) {
             for (Map.Entry<K, List<V>> entry : map.entrySet()) {

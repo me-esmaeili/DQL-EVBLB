@@ -4,7 +4,7 @@ import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.model.EdgeServer;
 import ir.mesmaeili.lba.model.Task;
-import ir.mesmaeili.lba.util.ServerNeighbors;
+import ir.mesmaeili.lba.util.EvblbBaseNeighborSelection;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Geometry;
@@ -39,25 +39,29 @@ public class EVBLBAlgorithm implements LBAlgorithm {
             }
         }
         // Assign remaining tasks to edge servers
-        ServerNeighbors serverNeighbors;
+        NeighborSelector neighborSelector = getNeighborSelector();
         for (EdgeServer e_i : simulationState.getEdgeServers()) {
-            serverNeighbors = new ServerNeighbors(e_i);
-            List<EdgeServer> neighbors = serverNeighbors.findNeighbors(simulationState.getEdgeServers());
+            List<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers());
             EdgeServer e_k = getServerWithMaxRemainingResource(neighbors);
             assignTasksInRegionToServer(vd.getRegion(config.getVoronoiTessellation(), e_i), simulationState.getTasks(), e_k);
         }
     }
 
+    @Override
+    public NeighborSelector getNeighborSelector() {
+        return new EvblbBaseNeighborSelection();
+    }
+
     private double getMaxCpuResource(List<EdgeServer> servers) {
-        return servers.stream().mapToDouble(EdgeServer::getProcessingCapacity).max().getAsDouble();
+        return servers.stream().mapToDouble(EdgeServer::getProcessingCapacity).max().orElse(0);
     }
 
     private double getMaxMemResource(List<EdgeServer> servers) {
-        return servers.stream().mapToDouble(EdgeServer::getMemoryCapacity).max().getAsDouble();
+        return servers.stream().mapToDouble(EdgeServer::getMemoryCapacity).max().orElse(0);
     }
 
     private double getMaxDiskResource(List<EdgeServer> servers) {
-        return servers.stream().mapToDouble(EdgeServer::getDiskCapacity).max().getAsDouble();
+        return servers.stream().mapToDouble(EdgeServer::getDiskCapacity).max().orElse(0);
     }
 
     private void assignToLeastLoadedCloudServer(Task task) {
@@ -92,7 +96,7 @@ public class EVBLBAlgorithm implements LBAlgorithm {
     private void assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {
         List<Task> regionTasks = vd.getRegionTasks(region, allTasks);
         for (Task task : regionTasks) {
-            server.addTask(task);
+            server.addTask(task, this.simulationState);
         }
         log.info("Assign {} tasks in region {} to server {}", regionTasks.size(), region.getBoundary(), server.getId());
     }

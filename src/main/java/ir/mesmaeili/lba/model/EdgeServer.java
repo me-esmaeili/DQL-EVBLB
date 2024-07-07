@@ -1,7 +1,7 @@
 package ir.mesmaeili.lba.model;
 
 import ir.mesmaeili.lba.config.SimulationConfig;
-import ir.mesmaeili.lba.util.NumberUtil;
+import ir.mesmaeili.lba.config.SimulationState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +22,10 @@ public class EdgeServer {
     private final double diskCapacity; // in GB
     private final double processingCapacity; // in MHZ
     private final Queue<Task> taskQueue;
-    private final Queue<Task> blockedQueue;
+    private final Queue<Task> cloudQueue;
     private final SimulationConfig simulationConfig;
     private final Map<Double, List<Task>> roundProcessedTaskQueue;
+    private final Map<Double, List<Task>> roundBlockedTaskQueue;
 
     private final List<EdgeServer> neighbors;
     private final Map<Double, ServerPerformanceMetric> metrics;
@@ -38,16 +39,17 @@ public class EdgeServer {
         this.processingCapacity = SimulationConfig.getRandomServerCpuInMhz();
         this.neighbors = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
-        this.blockedQueue = new LinkedList<>();
+        this.cloudQueue = new LinkedList<>();
+        this.roundBlockedTaskQueue = new HashMap<>();
         this.metrics = new HashMap<>();
         this.roundProcessedTaskQueue = new HashMap<>();
     }
 
-    public void addTask(Task task) {
+    public void addTask(Task task, SimulationState simulationState) {
         if (taskQueue.size() < simulationConfig.getServerMaxQueueSize()) {
             taskQueue.add(task);
         } else {
-            blockedQueue.add(task);
+            roundBlockedTaskQueue.computeIfAbsent(simulationState.getCurrentSimulationTime(), k -> new ArrayList<>()).add(task);
         }
     }
 
@@ -89,13 +91,13 @@ public class EdgeServer {
                     task.setProcessStartTime(taskStartProcessingTime.doubleValue());
                     currentTime = currentTime.add(taskProcessingTimeSeconds); // proceed time
                     task.setFinishTime(taskStartProcessingTime.add(taskProcessingTimeSeconds).doubleValue());
-                    roundProcessedTaskQueue.computeIfAbsent(NumberUtil.round(currentSimulationTime, 2), k -> new ArrayList<>()).add(task);
+                    roundProcessedTaskQueue.computeIfAbsent(currentSimulationTime, k -> new ArrayList<>()).add(task);
                 } else {
                     break;
                 }
             } else {
                 log.info("Task " + task.getId() + " send to Cloud to execute");
-                blockedQueue.add(task);
+                cloudQueue.add(task);
             }
         }
     }
@@ -105,7 +107,7 @@ public class EdgeServer {
                 (this.diskCapacity - this.taskQueue.stream().mapToDouble(Task::getDisk).sum()) >= task.getDisk();
     }
 
-    private double calculateCpuUtilization(double deltaT) {
+    public double calculateCpuUtilization(double deltaT) {
         double totalCpuUsage = taskQueue.stream().mapToDouble(Task::getCpu).sum();
         return Math.min(1, totalCpuUsage / (processingCapacity * deltaT));
     }
@@ -113,7 +115,6 @@ public class EdgeServer {
     public void calculateMetrics(double currentSimulationTime) {
         ServerPerformanceMetric metric = new ServerPerformanceMetric();
         metric.setCpuUtilization(calculateCpuUtilization(simulationConfig.getDeltaT()));
-        metric.setBlockedTaskCount(blockedQueue.size());
         metric.setQueueSize(taskQueue.size());
         this.metrics.put(currentSimulationTime, metric);
     }

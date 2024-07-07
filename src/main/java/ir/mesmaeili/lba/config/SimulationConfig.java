@@ -43,7 +43,7 @@ public class SimulationConfig {
     }
 
     public static double getRandomServerCpuInMhz() {
-        return 1000 + 100. * rand.nextInt(40);
+        return 5000 + 100. * rand.nextInt(40);
     }
 
     public static double getRandomTaskMemoryInMB() {

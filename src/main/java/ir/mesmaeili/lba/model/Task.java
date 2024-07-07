@@ -46,6 +46,6 @@ public class Task {
     }
 
     public double getMakespanTime() {
-        return finishTime - arrivalTime;
+        return new BigDecimal(finishTime - arrivalTime).doubleValue();
     }
 }

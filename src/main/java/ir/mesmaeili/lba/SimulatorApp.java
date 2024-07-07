@@ -25,11 +25,11 @@ public class SimulatorApp {
         BasicConfigurator.configure();
 
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(30);
+        simulationConfig.setServerCount(10);
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceX(100);
-        simulationConfig.setDeltaT(1.2);
-        simulationConfig.setTotalSimulationTime(1000);
+        simulationConfig.setDeltaT(2.);
+        simulationConfig.setTotalSimulationTime(100);
 
         log.info("Start simulation at {}", new Date());
         SimulationStatisticResult result = SimulateEVBLB(simulationConfig);

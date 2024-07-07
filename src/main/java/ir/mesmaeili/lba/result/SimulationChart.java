@@ -24,11 +24,11 @@ public class SimulationChart {
         SimulationMetricResult metricResult = result.toMetricResult();
 
         // Calculate and add data to series
-        addDataToSeries(metricResult.getAverageQueueSizeMap(), queueSizeSeries, result.getTotalRounds());
-        addLBFDataToSeries(metricResult.getAverageCpuUtilizationMap(), cpuUtilizationSeries, result.getTotalRounds());
-        addDataToSeries(metricResult.getAverageBlockedTasksMap(), blockedTasksSeries, result.getTotalRounds());
-        addDataToSeries(metricResult.getAverageResponseTimeMap(), responseTimeSeries, result.getTotalRounds());
-        addDataToSeries(metricResult.getAverageMakespanTimeMap(), makeSpanTimeSeries, result.getTotalRounds());
+        addDataToSeries(metricResult.getAverageQueueSizeMap(), queueSizeSeries);
+        addLBFDataToSeries(metricResult.getAverageCpuUtilizationMap(), cpuUtilizationSeries);
+        addDataToSeries(metricResult.getAverageBlockedTasksMap(), blockedTasksSeries);
+        addDataToSeries(metricResult.getAverageResponseTimeMap(), responseTimeSeries);
+        addDataToSeries(metricResult.getAverageMakespanTimeMap(), makeSpanTimeSeries);
 
         // Draw the charts
         drawChart(queueSizeSeries, "Average Queue Size Over Time", "Time", "Queue Size");
@@ -38,14 +38,14 @@ public class SimulationChart {
         drawChart(makeSpanTimeSeries, "Average Makespan Time Over Time", "Time", "Makespan Time");
     }
 
-    private <T extends Number> void addDataToSeries(Map<Double, List<T>> dataMap, XYSeries series, int totalRounds) {
+    private <T extends Number> void addDataToSeries(Map<Double, List<T>> dataMap, XYSeries series) {
         dataMap.forEach((time, dataList) -> {
-            double avg = dataList.stream().mapToDouble(Number::doubleValue).sum() / (totalRounds * dataList.size());
+            double avg = dataList.stream().mapToDouble(Number::doubleValue).sum() / dataList.size();
             series.add((double) time, avg);
         });
     }
 
-    public static void addLBFDataToSeries(Map<Double, List<Double>> cpuUtilizationMap, XYSeries series, int totalRounds) {
+    public static void addLBFDataToSeries(Map<Double, List<Double>> cpuUtilizationMap, XYSeries series) {
         cpuUtilizationMap.forEach((time, dataList) -> {
             double avg = MetricUtil.calculateLBF(dataList, time);
             series.add((double) time, avg);

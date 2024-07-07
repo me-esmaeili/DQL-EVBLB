@@ -85,10 +85,10 @@ public class EdgeServer {
 
                 if (currentTime.add(taskProcessingTimeSeconds).compareTo(deltaTBig) <= 0) {
                     taskQueue.poll();
-                    BigDecimal taskStartProcessingTime = currentSimulationTimeBig.add(currentTime);
+                    BigDecimal taskStartProcessingTime = currentSimulationTimeBig.add(currentTime).add(BigDecimal.valueOf(task.getArrivalTime()));
                     task.setProcessStartTime(taskStartProcessingTime.doubleValue());
                     currentTime = currentTime.add(taskProcessingTimeSeconds); // proceed time
-                    task.setFinishTime(taskStartProcessingTime.add(taskProcessingTimeSeconds).longValue());
+                    task.setFinishTime(taskStartProcessingTime.add(taskProcessingTimeSeconds).doubleValue());
                     roundProcessedTaskQueue.computeIfAbsent(NumberUtil.round(currentSimulationTime, 2), k -> new ArrayList<>()).add(task);
                 } else {
                     break;

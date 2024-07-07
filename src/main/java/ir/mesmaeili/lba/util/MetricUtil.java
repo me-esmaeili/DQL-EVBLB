@@ -19,7 +19,6 @@ public class MetricUtil {
     public static double calculateAverageResponseTime(double time, EdgeServer server) {
         if (server.getRoundProcessedTaskQueue().containsKey(NumberUtil.round(time, 2))) {
             return server.getRoundProcessedTaskQueue().get(NumberUtil.round(time, 2)).stream()
-                    .filter(task -> task.getProcessStartTime() > 0)
                     .mapToDouble(Task::getResponseTime)
                     .average()
                     .orElse(0);
@@ -31,7 +30,6 @@ public class MetricUtil {
     public static double calculateAverageMakespanTime(double time, EdgeServer server) {
         if (server.getRoundProcessedTaskQueue().containsKey(NumberUtil.round(time, 2))) {
             return server.getRoundProcessedTaskQueue().get(NumberUtil.round(time, 2)).stream()
-                    .filter(task -> task.getFinishTime() > 0)
                     .mapToDouble(Task::getMakespanTime)
                     .average()
                     .orElse(0);

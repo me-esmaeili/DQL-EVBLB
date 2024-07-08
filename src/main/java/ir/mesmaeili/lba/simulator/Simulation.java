@@ -25,7 +25,6 @@ public class Simulation {
     private final SimulationStatisticResult simulationStatisticResult;
     private final VoronoiUtils voronoiUtils;
     private final SimulationState simulationState;
-    private final List<Coordinate> points;
 
     public Simulation(LBAlgorithm lbAlgorithm, SimulationConfig simulationConfig) {
         this.simulationConfig = simulationConfig;
@@ -34,13 +33,12 @@ public class Simulation {
         this.simulationState = new SimulationState();
         this.voronoiUtils = new VoronoiUtils();
 
-        points = voronoiUtils.generatePoints(this.simulationConfig.getServerCount(), this.simulationConfig.getSpaceX(), this.simulationConfig.getSpaceY());
-        int i = 1;
-        for (Coordinate point : points) {
-            EdgeServer edgeServer = new EdgeServer(i++, point, this.simulationConfig);
+        for (int i = 1; i <= simulationConfig.getServerCount(); i++) {
+            EdgeServer edgeServer = new EdgeServer(i, this.simulationConfig);
             simulationState.addServer(edgeServer);
             simulationStatisticResult.addServer(edgeServer);
         }
+        lbAlgorithm.setServerLocations(simulationState.getEdgeServers());
         this.scheduler = new Scheduler(simulationConfig, this.simulationState, lbAlgorithm);
     }
 
@@ -78,13 +76,14 @@ public class Simulation {
     private Queue<Task> generateTasks(double currentSimulationTime) {
         Queue<Task> taskQueue = new LinkedList<>();
         int numberOfTasks = SimulationConfig.getTaskCountUniformRandom();
+        List<Coordinate> points = simulationState.getEdgeServers().stream().map(EdgeServer::getLocation).toList();
         // First, assign one task to each point
-        for (int i = 0; i < Math.min(numberOfTasks, this.points.size()); i++) {
+        for (int i = 0; i < Math.min(numberOfTasks, points.size()); i++) {
             Task task = new Task();
             // task arrival time in range [currentSimulationTime, currentSimulationTime+ U(0,DeltaT)
             double arrivalTime = currentSimulationTime + (random.nextDouble() * simulationConfig.getDeltaT());
             task.setArrivalTime(arrivalTime);
-            task.setLocation(points.get(i));
+            task.setLocation(voronoiUtils.generateRndPoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY()));
             taskQueue.add(task);
         }
         // If there are more tasks left, distribute them randomly among the points
@@ -92,7 +91,7 @@ public class Simulation {
             Task task = new Task();
             double arrivalTime = random.nextDouble() * simulationConfig.getDeltaT();
             task.setArrivalTime(arrivalTime);
-            Coordinate location = voronoiUtils.generatePoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+            Coordinate location = voronoiUtils.generateRndPoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
             task.setLocation(location);
             taskQueue.add(task);
         }

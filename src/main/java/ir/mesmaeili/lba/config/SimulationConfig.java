@@ -4,7 +4,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
+import org.locationtech.jts.geom.Coordinate;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -13,8 +15,9 @@ import java.util.Random;
 @Setter
 public class SimulationConfig {
     private final static Random rand = new Random();
-    @NotNull
     private int serverCount = 200;
+    @NotNull
+    private List<Coordinate> serverLocations = new ArrayList<>();
     @NotNull
     private static List<Integer> serverMemoryCapacityRange = Arrays.asList(4, 8, 16, 32, 64);
     @NotNull

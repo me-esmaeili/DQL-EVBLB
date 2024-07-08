@@ -4,6 +4,7 @@ import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -17,7 +18,9 @@ import java.util.*;
 public class EdgeServer {
     @EqualsAndHashCode.Include
     private final int id;
-    private final Coordinate location;
+    @Getter
+    @Setter
+    private Coordinate location;
     private final double memoryCapacity; // in MB
     private final double diskCapacity; // in GB
     private final double processingCapacity; // in MHZ
@@ -30,9 +33,8 @@ public class EdgeServer {
     private final List<EdgeServer> neighbors;
     private final Map<Double, ServerPerformanceMetric> metrics;
 
-    public EdgeServer(int id, Coordinate location, SimulationConfig simulationConfig) {
+    public EdgeServer(int id, SimulationConfig simulationConfig) {
         this.id = id;
-        this.location = location;
         this.simulationConfig = simulationConfig;
         this.memoryCapacity = SimulationConfig.getRandomServerMemoryInMB();
         this.diskCapacity = SimulationConfig.getRandomServerDiskInGB();

@@ -25,18 +25,6 @@ public class MetricUtil {
         }
     }
 
-    public static double calculateBlockingRate(double time, EdgeServer server) {
-        List<Task> serverBlockedTasks = server.getRoundBlockedTaskQueue().get(time);
-        List<Task> serverProcessedTasks = server.getRoundProcessedTaskQueue().get(time);
-        if (serverBlockedTasks != null && serverProcessedTasks != null) {
-            int totalTasks = serverProcessedTasks.size() + serverBlockedTasks.size();
-            if (totalTasks != 0) {
-                return serverBlockedTasks.size() / totalTasks;
-            }
-        }
-        return 0.;
-    }
-
     public static double calculateThroughput(double time, double deltaT, EdgeServer server) {
         if (server.getRoundProcessedTaskQueue().containsKey(NumberUtil.round(time, 2))) {
             return server.getRoundProcessedTaskQueue().get(NumberUtil.round(time, 2)).size() / deltaT;
@@ -66,7 +54,7 @@ public class MetricUtil {
         }
 
         // computer rate in every time point
-        for (Double key : totalBlockedTasks.keySet()) {
+        for (Double key : totalProcessTasks.keySet()) {
             Double blocked = totalBlockedTasks.get(key);
             Double processed = totalProcessTasks.get(key);
             if (blocked != null && processed != null) {

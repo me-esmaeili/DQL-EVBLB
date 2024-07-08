@@ -17,7 +17,7 @@ public class VoronoiUtils {
         return generateRandomCoordinates(count, spaceWith, spaceHeight);
     }
 
-    public Coordinate generatePoint(int spaceWith, int spaceHeight) {
+    public Coordinate generateRndPoint(int spaceWith, int spaceHeight) {
         return generateRandomCoordinates(1, spaceWith, spaceHeight).get(0);
     }
 
@@ -25,6 +25,16 @@ public class VoronoiUtils {
         VoronoiDiagramBuilder builder = new VoronoiDiagramBuilder();
         builder.setSites(coordinates);
         return builder.getDiagram(geometryFactory);
+    }
+
+    public List<Coordinate> getVoronoiCenters(Geometry voronoiDiagram) {
+        List<Coordinate> centers = new ArrayList<>();
+        for (int i = 0; i < voronoiDiagram.getNumGeometries(); i++) {
+            Geometry cell = voronoiDiagram.getGeometryN(i);
+            Point center = cell.getCentroid();
+            centers.add(center.getCoordinate());
+        }
+        return centers;
     }
 
     public Geometry getRegion(Geometry voronoiDiagram, EdgeServer server) {
@@ -52,10 +62,10 @@ public class VoronoiUtils {
         return targetServers;
     }
 
-    public List<Task> getRegionTasks(Geometry voronoiDiagram, Collection<Task> tasks) {
+    public List<Task> getRegionTasks(Geometry region, Collection<Task> tasks) {
         List<Task> targetTasks = new ArrayList<>();
         for (Task task : tasks) {
-            if (getRegion(voronoiDiagram, task.getLocation()) != null) {
+            if (getRegion(region, task.getLocation()) != null) {
                 targetTasks.add(task);
             }
         }

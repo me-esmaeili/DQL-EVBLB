@@ -1,6 +1,6 @@
 package ir.mesmaeili.lba;
 
-import ir.mesmaeili.lba.algorithm.EVBLBAlgorithm;
+import ir.mesmaeili.lba.algorithm.EvblbAlgorithm;
 import ir.mesmaeili.lba.algorithm.EvblbConfig;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.result.SimulationChart;
@@ -25,9 +25,9 @@ public class SimulatorApp {
         BasicConfigurator.configure();
 
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(20);
+        simulationConfig.setServerCount(50);
         simulationConfig.setSpaceX(100);
-        simulationConfig.setSpaceX(100);
+        simulationConfig.setSpaceY(100);
         simulationConfig.setDeltaT(2.);
         simulationConfig.setTotalSimulationTime(100);
 
@@ -46,8 +46,7 @@ public class SimulatorApp {
         // Compute the Voronoi Tessellation (VT)
         List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
         config.setVoronoiTessellation(vb.generateDiagram(points));
-        EVBLBAlgorithm evblbAlgorithm = new EVBLBAlgorithm(simulationConfig, config);
-
+        EvblbAlgorithm evblbAlgorithm = new EvblbAlgorithm(simulationConfig, config);
         Simulation simulation = new Simulation(evblbAlgorithm, simulationConfig);
         return simulation.run();
     }

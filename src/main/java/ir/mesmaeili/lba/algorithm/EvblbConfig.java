@@ -11,9 +11,8 @@ import org.locationtech.jts.geom.Geometry;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EvblbConfig {
-    private double alpha;
-    private double beta;
-    private double gamma;
-    private double deltaT;
+    private double alpha = 0.34;
+    private double beta = 0.33;
+    private double gamma = 0.33;
     private Geometry voronoiTessellation;
 }

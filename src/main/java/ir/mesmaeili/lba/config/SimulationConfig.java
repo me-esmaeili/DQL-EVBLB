@@ -22,17 +22,11 @@ public class SimulationConfig {
     private static List<Integer> serverMemoryCapacityRange = Arrays.asList(4, 8, 16, 32, 64);
     @NotNull
     private static List<Integer> serverDiskCapacityRange = Arrays.asList(500, 1000, 2000, 4000);
-    @NotNull
     private int BSCount = 1000;
-    @NotNull
     private int serverMaxQueueSize = 200;
-    @NotNull
     private int spaceX;
-    @NotNull
     private int spaceY;
-    @NotNull
     private double deltaT;
-    @NotNull
     private float totalSimulationTime; // in seconds
     @NotNull
     private static Pair<Integer, Integer> taskUniformRange = Pair.of(100, 200);
@@ -46,7 +40,7 @@ public class SimulationConfig {
     }
 
     public static double getRandomServerCpuInMhz() {
-        return 5000 + 100. * rand.nextInt(40);
+        return 1000 + 100. * rand.nextInt(40);
     }
 
     public static double getRandomTaskMemoryInMB() {
@@ -63,5 +57,9 @@ public class SimulationConfig {
 
     public static int getTaskCountUniformRandom() {
         return taskUniformRange.getKey() + rand.nextInt(taskUniformRange.getValue() - taskUniformRange.getKey() + 1);
+    }
+
+    public void setTaskUniformRange(Pair<Integer, Integer> range) {
+        taskUniformRange = range;
     }
 }

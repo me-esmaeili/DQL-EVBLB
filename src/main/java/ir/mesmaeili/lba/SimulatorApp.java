@@ -9,6 +9,7 @@ import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.BasicConfigurator;
 import org.locationtech.jts.geom.Coordinate;
 
@@ -26,9 +27,11 @@ public class SimulatorApp {
 
         SimulationConfig simulationConfig = new SimulationConfig();
         simulationConfig.setServerCount(50);
+        simulationConfig.setServerMaxQueueSize(100);
         simulationConfig.setSpaceX(100);
         simulationConfig.setSpaceY(100);
         simulationConfig.setDeltaT(2.);
+        simulationConfig.setTaskUniformRange(Pair.of(1000, 2000));
         simulationConfig.setTotalSimulationTime(100);
 
         log.info("Start simulation at {}", new Date());

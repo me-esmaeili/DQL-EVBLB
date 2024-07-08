@@ -50,7 +50,11 @@ public class EdgeServer {
     public void addTask(Task task, SimulationState simulationState) {
         if (taskQueue.size() < simulationConfig.getServerMaxQueueSize()) {
             taskQueue.add(task);
+            log.info("Add task {} to server {} in simulation time {} with queue size {}",
+                    task.getId(), this.id, simulationState.getCurrentSimulationTime(), taskQueue.size());
         } else {
+            log.info("Could not add task {} to server {} in simulation time {}",
+                    task.getId(), this.id, simulationState.getCurrentSimulationTime());
             roundBlockedTaskQueue.computeIfAbsent(simulationState.getCurrentSimulationTime(), k -> new ArrayList<>()).add(task);
         }
     }
@@ -72,7 +76,7 @@ public class EdgeServer {
     }
 
 
-    public void executeTasks(double deltaT, double currentSimulationTime) {
+    public synchronized void executeTasks(double deltaT, double currentSimulationTime) {
         BigDecimal currentTime = BigDecimal.ZERO;
         BigDecimal deltaTBig = BigDecimal.valueOf(deltaT);
         BigDecimal currentSimulationTimeBig = BigDecimal.valueOf(currentSimulationTime);
@@ -82,11 +86,12 @@ public class EdgeServer {
             if (canExecuteTask(task)) {
                 log.info("Task " + task.getId() + " executed by server " + getId());
 
-                // to prevent lost precise, we use BigDecimal
-                BigDecimal taskProcessingRequirementMHz = BigDecimal.valueOf(task.getCpu());
+                // to prevent lost precision, we use BigDecimal
+                BigDecimal taskProcessingRequirementMHz = BigDecimal.valueOf(task.getRemainingCpu());
                 BigDecimal processingCapacityBig = BigDecimal.valueOf(processingCapacity);
                 BigDecimal taskProcessingTimeSeconds = taskProcessingRequirementMHz.divide(processingCapacityBig, 2, RoundingMode.HALF_UP);
 
+                // Check if the task can be fully processed within the remaining DeltaT time
                 if (currentTime.add(taskProcessingTimeSeconds).compareTo(deltaTBig) <= 0) {
                     taskQueue.poll();
                     BigDecimal taskStartProcessingTime = currentSimulationTimeBig.add(currentTime).add(BigDecimal.valueOf(task.getArrivalTime()));
@@ -94,15 +99,22 @@ public class EdgeServer {
                     currentTime = currentTime.add(taskProcessingTimeSeconds); // proceed time
                     task.setFinishTime(taskStartProcessingTime.add(taskProcessingTimeSeconds).doubleValue());
                     roundProcessedTaskQueue.computeIfAbsent(currentSimulationTime, k -> new ArrayList<>()).add(task);
+                    task.setRemainingCpu(0); // Task is fully processed, set remaining CPU to 0
                 } else {
-                    break;
+                    // Calculate the remaining time for DeltaT and reduce the remaining CPU of the task accordingly
+                    BigDecimal remainingDeltaT = deltaTBig.subtract(currentTime);
+                    BigDecimal reducedCpuRequirement = taskProcessingRequirementMHz.multiply(remainingDeltaT).divide(taskProcessingTimeSeconds, 2, RoundingMode.HALF_UP);
+                    task.setRemainingCpu(task.getRemainingCpu() - reducedCpuRequirement.doubleValue());
+                    currentTime = deltaTBig; // Update the current time to DeltaT as we have reached the end of this round
                 }
             } else {
+                taskQueue.poll();
                 log.info("Task " + task.getId() + " send to Cloud to execute");
                 cloudQueue.add(task);
             }
         }
     }
+
 
     private boolean canExecuteTask(Task task) {
         return this.memoryCapacity >= task.getMemory() ||

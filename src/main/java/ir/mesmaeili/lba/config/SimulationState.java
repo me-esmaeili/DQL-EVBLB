@@ -19,6 +19,7 @@ public class SimulationState {
     private double currentSimulationTime = 0;
     private List<EdgeServer> edgeServers = new ArrayList<>();
     private Queue<Task> tasks = new LinkedList<>();
+    private Queue<Task> roundTasks = new LinkedList<>();
     private CloudServer cloudServer = new CloudServer();
 
     public void addServer(EdgeServer server) {

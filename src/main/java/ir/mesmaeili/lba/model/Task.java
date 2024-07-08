@@ -19,6 +19,9 @@ public class Task {
     private final double disk; // in GB
     @NotNull
     private final double cpu; // in MHZ
+    @Getter
+    @Setter
+    private double remainingCpu; // in MHZ is used to store remaining for next round of LB excution
 
     @Getter
     @Setter

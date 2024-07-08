@@ -28,14 +28,14 @@ public class EvblbAlgorithm implements LBAlgorithm {
     }
 
     @Override
-    public void dispatchTasksOverServers(SimulationState simulationState) {
+    public synchronized void dispatchTasksOverServers(SimulationState simulationState) {
         this.simulationState = simulationState;
         double Mc = getMaxCpuResource(simulationState.getEdgeServers());
         double Mm = getMaxMemResource(simulationState.getEdgeServers());
         double Md = getMaxDiskResource(simulationState.getEdgeServers());
 
         // Assign tasks to cloud server if they exceed max resources of edge servers
-        for (Task task : simulationState.getTasks()) {
+        for (Task task : simulationState.getRoundTasks()) {
             if (task.getCpu() > Mc || task.getMemory() > Mm || task.getDisk() > Md) {
                 assignToLeastLoadedCloudServer(task);
             }
@@ -46,7 +46,7 @@ public class EvblbAlgorithm implements LBAlgorithm {
             List<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers());
             EdgeServer e_k = getServerWithMaxRemainingResource(neighbors);
             Geometry serverRegion = vu.getRegion(config.getVoronoiTessellation(), e_i);
-            assignTasksInRegionToServer(serverRegion, simulationState.getTasks(), e_k);
+            assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);
         }
     }
 

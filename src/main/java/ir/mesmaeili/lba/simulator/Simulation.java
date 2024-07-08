@@ -53,6 +53,7 @@ public class Simulation {
             // generate tasks
             Queue<Task> tasks = generateTasks(currentSimulationTime);
             simulationState.addTasks(tasks);
+            simulationState.setRoundTasks(tasks);
             simulationStatisticResult.addTasks(tasks);
             log.info("Tasks are generated at time " + currentSimulationTime);
 

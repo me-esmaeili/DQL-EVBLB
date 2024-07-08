@@ -14,8 +14,9 @@ import java.util.*;
 @Getter
 @Setter
 public class SimulationStatisticResult {
-    private int totalRounds;
     private long startTime;
+    private int totalRounds;
+    private double totalSimulationTime;
     private double DeltaT;
     private Queue<Task> tasks = new LinkedList<>();
     private List<EdgeServer> edgeServers = new ArrayList<>();
@@ -23,10 +24,11 @@ public class SimulationStatisticResult {
     public SimulationStatisticResult(long startTime, SimulationConfig config) {
         this.startTime = startTime;
         this.DeltaT = config.getDeltaT();
+        this.totalSimulationTime = config.getTotalSimulationTime();
     }
 
-    public void addTasks(Queue<Task> task) {
-        tasks.addAll(task);
+    public void addTasks(Queue<Task> tasks) {
+        this.tasks.addAll(tasks);
     }
 
     public void addServer(EdgeServer edgeServer) {
@@ -63,12 +65,13 @@ public class SimulationStatisticResult {
     public void writeToCsv() {
         SimulationMetricResult result = toMetricResult();
         String dir = "result/";
-        CsvUtils.writeMapToCsv(dir + "LBF.csv", result.getLBFOverTimeMap());
-        CsvUtils.writeMapToCsv(dir + "throughput.csv", result.getThroughputOverTimeMap());
-        CsvUtils.writeMapToCsv(dir + "blockingRate.csv", result.getBlockingRateOverTimeMap());
-        CsvUtils.writeMapToCsv(dir + "averageQueueSize.csv", result.getAverageQueueSizeOverTimeMap());
-        CsvUtils.writeMapToCsv(dir + "averageResponseTime.csv", result.getAverageResponseTimeOverTimeMap());
-        CsvUtils.writeMapToCsv(dir + "averageMakespanTime.csv", result.getAverageMakespanTimeOverTimeMap());
+        String simulationState = String.format("DeltaT-%.2f-SimulationTime-%.2f", getDeltaT(), getTotalSimulationTime());
+        CsvUtils.writeMapToCsv(dir + String.format("LBF-%s.csv", simulationState), result.getLBFOverTimeMap());
+        CsvUtils.writeMapToCsv(dir + String.format("throughput-%s.csv", simulationState), result.getThroughputOverTimeMap());
+        CsvUtils.writeMapToCsv(dir + String.format("blockingRate-%s.csv", simulationState), result.getBlockingRateOverTimeMap());
+        CsvUtils.writeMapToCsv(dir + String.format("averageQueueSize-%s.csv", simulationState), result.getAverageQueueSizeOverTimeMap());
+        CsvUtils.writeMapToCsv(dir + String.format("averageResponseTime-%s.csv", simulationState), result.getAverageResponseTimeOverTimeMap());
+        CsvUtils.writeMapToCsv(dir + String.format("averageMakespanTime-%s.csv", simulationState), result.getAverageMakespanTimeOverTimeMap());
     }
 
     private <T extends Number> Map<Double, Double> averageValues(Map<Double, List<T>> dataMap) {

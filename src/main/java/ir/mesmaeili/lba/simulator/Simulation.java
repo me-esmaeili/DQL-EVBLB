@@ -26,19 +26,19 @@ public class Simulation {
     private final VoronoiUtils voronoiUtils;
     private final SimulationState simulationState;
 
-    public Simulation(LBAlgorithm lbAlgorithm, SimulationConfig simulationConfig) {
+    public Simulation(LBAlgorithm lbAlgorithm, SimulationConfig simulationConfig, SimulationState simulationState) {
         this.simulationConfig = simulationConfig;
         this.simulationStatisticResult = new SimulationStatisticResult(System.currentTimeMillis(), this.simulationConfig);
         this.random = new Random();
-        this.simulationState = new SimulationState();
+        this.simulationState = simulationState;
         this.voronoiUtils = new VoronoiUtils();
 
         for (int i = 1; i <= simulationConfig.getServerCount(); i++) {
             EdgeServer edgeServer = new EdgeServer(i, this.simulationConfig);
-            simulationState.addServer(edgeServer);
+            this.simulationState.addServer(edgeServer);
             simulationStatisticResult.addServer(edgeServer);
         }
-        lbAlgorithm.setServerLocations(simulationState.getEdgeServers());
+        lbAlgorithm.setServerLocations(this.simulationState.getEdgeServers());
         this.scheduler = new Scheduler(simulationConfig, this.simulationState, lbAlgorithm);
     }
 
@@ -48,12 +48,12 @@ public class Simulation {
         double totalSimulationTime = simulationConfig.getTotalSimulationTime();
         while (totalSimulationTime >= currentSimulationTime) {
             log.info("Start to round {} at time:{}", curentRound, currentSimulationTime);
-            simulationState.setCurrentSimulationTime(currentSimulationTime); // store simulation time in range [0,totalRound*DeltaT]
+            this.simulationState.setCurrentSimulationTime(currentSimulationTime); // store simulation time in range [0,totalRound*DeltaT]
 
             // generate tasks
             Queue<Task> tasks = generateTasks(currentSimulationTime);
-            simulationState.addTasks(tasks);
-            simulationState.setRoundTasks(tasks);
+            this.simulationState.addTasks(tasks);
+            this.simulationState.setRoundTasks(tasks);
             simulationStatisticResult.addTasks(tasks);
             log.info("Tasks are generated at time " + currentSimulationTime);
 
@@ -67,10 +67,11 @@ public class Simulation {
                 log.error("Error:", e);
             }
             log.info("finish round {} at time: {}", curentRound, currentSimulationTime);
-            simulationState.setCurrentRound(curentRound);
+            this.simulationState.setCurrentRound(curentRound);
         }
         simulationStatisticResult.setTotalRounds(curentRound);
         scheduler.finish();
+        simulationStatisticResult.setFinishTime(System.currentTimeMillis());
         return this.simulationStatisticResult;
     }
 

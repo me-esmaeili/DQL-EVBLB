@@ -87,7 +87,9 @@ public class EdgeServer {
                 log.info("Task " + task.getId() + " executed by server " + getId());
 
                 // to prevent lost precision, we use BigDecimal
-                BigDecimal taskProcessingRequirementMHz = BigDecimal.valueOf(task.getRemainingCpu());
+                BigDecimal taskProcessingRequirementMHz = task.getRemainingCpu() == 0
+                        ? BigDecimal.valueOf(task.getCpu())
+                        : BigDecimal.valueOf(task.getRemainingCpu());
                 BigDecimal processingCapacityBig = BigDecimal.valueOf(processingCapacity);
                 BigDecimal taskProcessingTimeSeconds = taskProcessingRequirementMHz.divide(processingCapacityBig, 2, RoundingMode.HALF_UP);
 

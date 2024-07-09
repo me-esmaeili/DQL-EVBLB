@@ -134,4 +134,16 @@ public class EdgeServer {
         metric.setQueueSize(taskQueue.size());
         this.metrics.put(currentSimulationTime, metric);
     }
+
+    public double getCpuUsage() {
+        return Math.min(1, taskQueue.stream().map(Task::getCpu).mapToDouble(d -> d).sum() / processingCapacity) * 100;
+    }
+
+    public double getMemoryUsage() {
+        return Math.min(1, taskQueue.stream().map(Task::getMemory).mapToDouble(d -> d).sum() / memoryCapacity) * 100;
+    }
+
+    public double getDiskUsage() {
+        return Math.min(1, taskQueue.stream().map(Task::getDisk).mapToDouble(d -> d).sum() / diskCapacity) * 100;
+    }
 }

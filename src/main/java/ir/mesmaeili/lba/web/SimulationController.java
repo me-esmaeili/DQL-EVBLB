@@ -22,4 +22,3 @@ public class SimulationController {
         return WebApplication.getSimulationState();
     }
 }
-

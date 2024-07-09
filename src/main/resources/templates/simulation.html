@@ -2,9 +2,40 @@
 <html lang="fa">
 <head>
     <meta charset="UTF-8">
-    <title>وضعیت سرورهای شبیهسازی</title>
+    <title>Load Balancing Simulation</title>
     <style>
+        .servers-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .server-status {
+            flex: 1;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-right: 5px;
+        }
+
+        .server-status:last-child {
+            margin-right: 0;
+        }
+
+        .queue-size {
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .resource-capacity {
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
         .progress-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
             background-color: #ddd;
             margin-bottom: 10px;
@@ -19,36 +50,41 @@
             color: white;
         }
 
-        .queue-size {
-            font-size: 1.2em;
+        .progress-text {
+            flex-basis: auto;
+            background-color: white;
+            height: inherit;
+            text-align: left;
+            margin-right: auto;
         }
 
-        .server-status {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.0/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
 
-<h2>وضعیت شبیه سازی</h2>
+<h2>Simulation status</h2>
 
 <div id="serversContainer"></div>
 
 <script>
-    var socket = new SockJS('/simulation-websocket');
-    var stompClient = Stomp.over(socket);
+    const socket = new SockJS('/simulation-websocket');
+    const stompClient = Stomp.over(socket);
+
+    function fetchSimulationStatus() {
+        stompClient.send("/app/simulation", {}, {});
+    }
 
     stompClient.connect({}, function (frame) {
         console.log('Connected: ' + frame);
+
         stompClient.subscribe('/topic/simulationStatus', function (simulationStatus) {
             var status = JSON.parse(simulationStatus.body);
             updateServersStatus(status.edgeServers);
-            // بهروزرسانی دیگر المانهای صفحه
         });
+
+        setInterval(fetchSimulationStatus, 1000);
     });
 
     function updateProgressBar(id, percentage) {
@@ -59,46 +95,65 @@
 
     function updateQueueSize(id, size) {
         var element = document.getElementById(id);
-        element.textContent = 'اندازه صف: ' + size;
+        element.textContent = 'Queue length ' + size;
     }
 
     function createServerElements(edgeServers) {
         const container = document.getElementById('serversContainer');
-        container.innerHTML = ''; // پاک کردن المانهای قبلی
-        edgeServers.forEach(server => {
-            const serverDiv = document.createElement('div');
-            serverDiv.className = 'server-status';
-            serverDiv.innerHTML = `
-            <h3>سرور ${server.id}</h3>
+        container.innerHTML = ''; // remove old values
+
+        for (let i = 0; i < edgeServers.length; i += 2) {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'servers-row';
+
+            const server1 = edgeServers[i];
+            const serverDiv1 = createServerStatusDiv(server1);
+            rowDiv.appendChild(serverDiv1);
+
+            if (i + 1 < edgeServers.length) {
+                const server2 = edgeServers[i + 1];
+                const serverDiv2 = createServerStatusDiv(server2);
+                rowDiv.appendChild(serverDiv2);
+            }
+            container.appendChild(rowDiv);
+        }
+    }
+
+    function createServerStatusDiv(server) {
+        const serverDiv = document.createElement('div');
+        serverDiv.className = 'server-status';
+        serverDiv.innerHTML = `
+            <h3>Server ${server.id}</h3>
             <div class="progress-container">
+            <div class="progress-text">Cpu Usage: </div>
             <div id="cpuUsage${server.id}" class="progress-bar">0%</div>
             </div>
             <div class="progress-container">
+            <div class="progress-text">Memory Usage: </div>
             <div id="memoryUsage${server.id}" class="progress-bar">0%</div>
             </div>
             <div class="progress-container">
+            <div class="progress-text">Disk Usage: </div>
             <div id="diskUsage${server.id}" class="progress-bar">0%</div>
             </div>
-            <div id="serverQueueSize${server.id}" class="queue-size">اندازه صف سرور: 0</div>
-            <div id="completedTasksQueueSize${server.id}" class="queue-size">اندازه صف کارهای انجام شده: 0</div>
-            <div id="blockedTasksQueueSize${server.id}" class="queue-size">اندازه صف کارهای بلوکه شده: 0</div>`;
-            container.appendChild(serverDiv);
-        });
+            <div id="serverQueueSize${server.id}" class="queue-size">Server queue length: 0</div>
+            <div id="completedTasksQueueSize${server.id}" class="queue-size">Server completed task queue size: 0</div>
+            <div id="blockedTasksQueueSize${server.id}" class="queue-size">Server blocked task queue size: 0</div>
+            `;
+        return serverDiv;
     }
 
     function updateServersStatus(edgeServers) {
-        createServerElements(edgeServers); // ایجاد المانهای جدید برای هر سرور
+        createServerElements(edgeServers); // for any server
         edgeServers.forEach(server => {
-            updateProgressBar('cpuUsage' + server.id, server.cpuUsage);
-            updateProgressBar('memoryUsage' + server.id, server.memoryUsage);
-            updateProgressBar('diskUsage' + server.id, server.diskUsage);
+            updateProgressBar('cpuUsage' + server.id, (Math.round(server.cpuUsage * 100) / 100).toFixed(2));
+            updateProgressBar('memoryUsage' + server.id, (Math.round(server.memoryUsage * 100) / 100).toFixed(2));
+            updateProgressBar('diskUsage' + server.id, (Math.round(server.diskUsage * 100) / 100).toFixed(2));
             updateQueueSize('serverQueueSize' + server.id, server.taskQueue.length);
             updateQueueSize('completedTasksQueueSize' + server.id, server.roundProcessedTaskQueue.length);
             updateQueueSize('blockedTasksQueueSize' + server.id, server.roundBlockedTaskQueue.length);
         });
     }
-
-    // تابع برای بهروزرسانی المانهای دیگر
 </script>
 
 </body>

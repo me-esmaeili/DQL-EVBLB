@@ -37,7 +37,7 @@ public class WebApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebApplication.class, args);
         simulationState = new SimulationState();
-//        runSimulation();
+        runSimulation();
     }
 
     @Autowired
@@ -63,12 +63,12 @@ public class WebApplication {
     public static void runSimulation() {
         VoronoiUtils vu = new VoronoiUtils();
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(50);
-        simulationConfig.setServerMaxQueueSize(500);
+        simulationConfig.setServerCount(10);
+        simulationConfig.setServerMaxQueueSize(200);
         simulationConfig.setSpaceX(1000);
         simulationConfig.setSpaceY(1000);
-        simulationConfig.setDeltaT(1.);
-        simulationConfig.setTaskUniformRange(Pair.of(300, 500));
+        simulationConfig.setDeltaT(1.5);
+        simulationConfig.setTaskUniformRange(Pair.of(100, 200));
         simulationConfig.setTotalSimulationTime(100);
 
         EvblbConfig config = new EvblbConfig();

@@ -1,4 +1,4 @@
-package ir.mesmaeili.lba.util;
+package ir.mesmaeili.lba.algorithm;
 
 import ir.mesmaeili.lba.algorithm.NeighborSelector;
 import ir.mesmaeili.lba.model.EdgeServer;

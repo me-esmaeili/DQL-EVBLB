@@ -4,7 +4,6 @@ import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.model.EdgeServer;
 import ir.mesmaeili.lba.model.Task;
-import ir.mesmaeili.lba.util.EvblbBaseNeighborSelection;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -16,10 +15,10 @@ import java.util.Queue;
 
 @Slf4j
 public class EvblbAlgorithm implements LBAlgorithm {
-    private final SimulationConfig simulationConfig;
-    private SimulationState simulationState;
-    private final EvblbConfig config;
-    private final VoronoiUtils vu = new VoronoiUtils();
+    protected final SimulationConfig simulationConfig;
+    protected SimulationState simulationState;
+    protected final EvblbConfig config;
+    protected final VoronoiUtils vu = new VoronoiUtils();
 
     // Constructor
     public EvblbAlgorithm(SimulationConfig simulationConfig, EvblbConfig config) {
@@ -66,23 +65,23 @@ public class EvblbAlgorithm implements LBAlgorithm {
         }
     }
 
-    private double getMaxCpuResource(List<EdgeServer> servers) {
+    protected double getMaxCpuResource(List<EdgeServer> servers) {
         return servers.stream().mapToDouble(EdgeServer::getProcessingCapacity).max().orElse(0);
     }
 
-    private double getMaxMemResource(List<EdgeServer> servers) {
+    protected double getMaxMemResource(List<EdgeServer> servers) {
         return servers.stream().mapToDouble(EdgeServer::getMemoryCapacity).max().orElse(0);
     }
 
-    private double getMaxDiskResource(List<EdgeServer> servers) {
+    protected double getMaxDiskResource(List<EdgeServer> servers) {
         return servers.stream().mapToDouble(EdgeServer::getDiskCapacity).max().orElse(0);
     }
 
-    private void assignToLeastLoadedCloudServer(Task task) {
+    protected void assignToLeastLoadedCloudServer(Task task) {
         this.simulationState.getCloudServer().addTask(task);
     }
 
-    private EdgeServer getServerWithMaxRemainingResource(List<EdgeServer> servers) {
+    protected EdgeServer getServerWithMaxRemainingResource(List<EdgeServer> servers) {
         if (servers.isEmpty()) {
             return null;
         }
@@ -107,7 +106,7 @@ public class EvblbAlgorithm implements LBAlgorithm {
         return serverWithMaxResource;
     }
 
-    private List<Task> assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {
+    protected List<Task> assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {
         List<Task> allocatedTasks = new ArrayList<>();
         List<Task> regionTasks = vu.getRegionTasks(region, allTasks);
         for (Task task : regionTasks) {

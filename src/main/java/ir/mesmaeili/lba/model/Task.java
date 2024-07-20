@@ -1,7 +1,7 @@
 package ir.mesmaeili.lba.model;
 
 import ir.mesmaeili.lba.config.SimulationConfig;
-import jakarta.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.jts.geom.Coordinate;
@@ -9,20 +9,17 @@ import org.locationtech.jts.geom.Coordinate;
 import java.math.BigDecimal;
 
 @Getter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Task {
     private static long counter = 1;
-    @NotNull
+    @EqualsAndHashCode.Include
     private final long id;
-    @NotNull
     private final double memory; // in MB
-    @NotNull
     private final double disk; // in GB
-    @NotNull
     private final double cpu; // in MHZ
     @Getter
     @Setter
     private double remainingCpu = 0.; // in MHZ is used to store remaining for next round of LB excution
-
     @Getter
     @Setter
     private double arrivalTime;

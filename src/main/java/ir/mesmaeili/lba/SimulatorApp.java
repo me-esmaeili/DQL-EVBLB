@@ -22,16 +22,15 @@ import java.util.List;
 @Getter
 public class SimulatorApp {
 
-    private static final VoronoiUtils vb = new VoronoiUtils();
-
     public static void main(String[] args) {
+        VoronoiUtils vb = new VoronoiUtils();
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(50);
-        simulationConfig.setServerMaxQueueSize(1000);
+        simulationConfig.setServerCount(20);
+        simulationConfig.setServerMaxQueueSize(200);
         simulationConfig.setSpaceX(1000);
         simulationConfig.setSpaceY(1000);
-        simulationConfig.setDeltaT(1.);
-        simulationConfig.setTaskUniformRange(Pair.of(400, 600));
+        simulationConfig.setDeltaT(1.1);
+        simulationConfig.setTaskUniformRange(Pair.of(300, 400));
         simulationConfig.setTotalSimulationTime(100);
 
         log.info("Start simulation at {}", new Date());
@@ -53,7 +52,6 @@ public class SimulatorApp {
 
         // print complete simulation report
         result.printReport();
-
         result.writeToCsv();
     }
 }

@@ -75,7 +75,6 @@ public class EdgeServer {
         return 1 - (normalizedMemory + normalizedDisk + normalizedCpu);
     }
 
-
     public synchronized void executeTasks(double deltaT, double currentSimulationTime) {
         BigDecimal currentTime = BigDecimal.ZERO;
         BigDecimal deltaTBig = BigDecimal.valueOf(deltaT);
@@ -84,7 +83,7 @@ public class EdgeServer {
         while (!taskQueue.isEmpty() && currentTime.compareTo(deltaTBig) < 0) {
             Task task = taskQueue.peek();
             if (canExecuteTask(task)) {
-                log.info("Task " + task.getId() + " executed by server " + getId());
+                log.info("Task {} executed by server {}, at simulation time {}", task.getId(), getId(), currentSimulationTime);
 
                 // to prevent lost precision, we use BigDecimal
                 BigDecimal taskProcessingRequirementMHz = task.getRemainingCpu() == 0
@@ -111,7 +110,7 @@ public class EdgeServer {
                 }
             } else {
                 taskQueue.poll();
-                log.info("Task " + task.getId() + " send to Cloud to execute");
+                log.info("Task {} send to Cloud to execute", task.getId());
                 cloudQueue.add(task);
             }
         }

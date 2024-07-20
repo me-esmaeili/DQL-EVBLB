@@ -8,14 +8,16 @@ import ir.mesmaeili.lba.util.CsvUtils;
 import ir.mesmaeili.lba.util.MetricUtil;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
+import java.util.logging.Logger;
 
-@Slf4j
 @Getter
 @Setter
 public class SimulationStatisticResult {
+
+    private static Logger log = Logger.getLogger(SimulationStatisticResult.class.getName());
+
     private SimulationConfig config;
     private long startTime;
     private long finishTime;

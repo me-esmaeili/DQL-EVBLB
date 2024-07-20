@@ -1,7 +1,8 @@
 package ir.mesmaeili.lba;
 
-import ir.mesmaeili.lba.algorithm.EvblbAlgorithm;
+import ir.mesmaeili.lba.algorithm.DQL_LBAlgorithm;
 import ir.mesmaeili.lba.algorithm.EvblbConfig;
+import ir.mesmaeili.lba.algorithm.LBAlgorithm;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.result.SimulationChart;
@@ -50,7 +51,7 @@ public class SimulatorApp {
         // Compute the Voronoi Tessellation (VT)
         List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
         config.setVoronoiTessellation(vb.generateDiagram(points));
-        EvblbAlgorithm evblbAlgorithm = new EvblbAlgorithm(simulationConfig, config);
+        LBAlgorithm evblbAlgorithm = new DQL_LBAlgorithm(simulationConfig, config, 100, 50);
         SimulationState simulationState = new SimulationState();
         Simulation simulation = new Simulation(evblbAlgorithm, simulationConfig, simulationState);
         return simulation.run();

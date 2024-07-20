@@ -7,10 +7,10 @@ import lombok.Setter;
 import org.locationtech.jts.geom.Coordinate;
 
 import java.math.BigDecimal;
-import java.util.Random;
 
 @Getter
 public class Task {
+    private static long counter = 1;
     @NotNull
     private final long id;
     @NotNull
@@ -37,8 +37,7 @@ public class Task {
     private Coordinate location;
 
     public Task() {
-        Random rand = new Random();
-        this.id = Math.abs(rand.nextLong());
+        this.id = getId();
         this.memory = SimulationConfig.getRandomTaskMemoryInMB();
         this.disk = SimulationConfig.getRandomTaskDiskInMB();
         this.cpu = SimulationConfig.getRandomTaskCpuInMhz();
@@ -50,5 +49,9 @@ public class Task {
 
     public double getMakespanTime() {
         return new BigDecimal(finishTime - arrivalTime).doubleValue();
+    }
+
+    public synchronized static long getId() {
+        return counter++;
     }
 }

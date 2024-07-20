@@ -43,7 +43,7 @@ public class EvblbAlgorithm implements LBAlgorithm {
         NeighborSelector neighborSelector = getNeighborSelector();
         for (EdgeServer e_i : simulationState.getEdgeServers()) {
             List<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers());
-            EdgeServer e_k = getServerWithMaxRemainingResource(neighbors);
+            EdgeServer e_k = findOptimalNeighbor(neighbors);
             Geometry serverRegion = vu.getRegion(config.getVoronoiTessellation(), e_i);
             assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);
         }
@@ -52,6 +52,32 @@ public class EvblbAlgorithm implements LBAlgorithm {
     @Override
     public NeighborSelector getNeighborSelector() {
         return new EvblbBaseNeighborSelection();
+    }
+
+    @Override
+    public EdgeServer findOptimalNeighbor(List<EdgeServer> servers) {
+        if (servers.isEmpty()) {
+            return null;
+        }
+        EdgeServer serverWithMaxResource = servers.get(0);
+        double maxResource = serverWithMaxResource.calculateRemainingResource(
+                config.getAlpha(),
+                config.getBeta(),
+                config.getGamma(),
+                simulationConfig.getDeltaT());
+        for (int i = 1; i < servers.size(); i++) {
+            EdgeServer edgeServer = servers.get(i);
+            double currentResource = edgeServer.calculateRemainingResource(
+                    config.getAlpha(),
+                    config.getBeta(),
+                    config.getGamma(),
+                    simulationConfig.getDeltaT());
+            if (currentResource > maxResource) {
+                serverWithMaxResource = edgeServer;
+                maxResource = currentResource;
+            }
+        }
+        return serverWithMaxResource;
     }
 
     @Override
@@ -79,31 +105,6 @@ public class EvblbAlgorithm implements LBAlgorithm {
 
     protected void assignToLeastLoadedCloudServer(Task task) {
         this.simulationState.getCloudServer().addTask(task);
-    }
-
-    protected EdgeServer getServerWithMaxRemainingResource(List<EdgeServer> servers) {
-        if (servers.isEmpty()) {
-            return null;
-        }
-        EdgeServer serverWithMaxResource = servers.get(0);
-        double maxResource = serverWithMaxResource.calculateRemainingResource(
-                config.getAlpha(),
-                config.getBeta(),
-                config.getGamma(),
-                simulationConfig.getDeltaT());
-        for (int i = 1; i < servers.size(); i++) {
-            EdgeServer edgeServer = servers.get(i);
-            double currentResource = edgeServer.calculateRemainingResource(
-                    config.getAlpha(),
-                    config.getBeta(),
-                    config.getGamma(),
-                    simulationConfig.getDeltaT());
-            if (currentResource > maxResource) {
-                serverWithMaxResource = edgeServer;
-                maxResource = currentResource;
-            }
-        }
-        return serverWithMaxResource;
     }
 
     protected List<Task> assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {

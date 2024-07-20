@@ -12,4 +12,10 @@ public interface LBAlgorithm {
     NeighborSelector getNeighborSelector();
 
     void setServerLocations(List<EdgeServer> servers);
+
+    EdgeServer findOptimalNeighbor(List<EdgeServer> servers);
+
+    default void afterScheduledProcessing() {
+        return;
+    }
 }

@@ -1,6 +1,5 @@
 package ir.mesmaeili.lba.algorithm;
 
-import ir.mesmaeili.lba.algorithm.NeighborSelector;
 import ir.mesmaeili.lba.model.EdgeServer;
 
 import java.util.ArrayList;
@@ -19,14 +18,20 @@ public class EvblbBaseNeighborSelection implements NeighborSelector {
         List<EdgeServer> N_i = new ArrayList<>();
         N_i.add(server);
         double RD_n = EPSILON;
-        for (int c = 1; c <= C_MAX; c++) {
+        int radius = getNeighborSelectionRadius();
+        for (int c = 1; c <= radius; c++) {
             N_i = updateNeighbors(server, RD_n, allServers);
             RD_n = Math.min(PSI, Math.max(0, S * (NU - N_i.size())));
         }
         return N_i;
     }
 
-    private List<EdgeServer> updateNeighbors(EdgeServer server, double RD_n, List<EdgeServer> allEdgeServers) {
+    @Override
+    public int getNeighborSelectionRadius() {
+        return C_MAX;
+    }
+
+    protected List<EdgeServer> updateNeighbors(EdgeServer server, double RD_n, List<EdgeServer> allEdgeServers) {
         List<EdgeServer> updatedNeighbors = new ArrayList<>();
         for (EdgeServer e_j : allEdgeServers) {
             if (dist(server, e_j) <= RD_n) {
@@ -36,8 +41,9 @@ public class EvblbBaseNeighborSelection implements NeighborSelector {
         return updatedNeighbors;
     }
 
-    private double dist(EdgeServer e_i, EdgeServer e_j) {
+    protected double dist(EdgeServer e_i, EdgeServer e_j) {
         return Math.hypot(e_i.getLocation().getX() - e_j.getLocation().getX(),
                 e_i.getLocation().getY() - e_j.getLocation().getY());
     }
+
 }

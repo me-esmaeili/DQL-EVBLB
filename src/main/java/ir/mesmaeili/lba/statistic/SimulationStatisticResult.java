@@ -1,5 +1,6 @@
 package ir.mesmaeili.lba.statistic;
 
+import ir.mesmaeili.lba.algorithm.LBAlgorithm;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.model.EdgeServer;
 import ir.mesmaeili.lba.model.Task;
@@ -8,15 +9,14 @@ import ir.mesmaeili.lba.util.CsvUtils;
 import ir.mesmaeili.lba.util.MetricUtil;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.*;
-import java.util.logging.Logger;
 
+@Slf4j
 @Getter
 @Setter
 public class SimulationStatisticResult {
-
-    private static Logger log = Logger.getLogger(SimulationStatisticResult.class.getName());
 
     private SimulationConfig config;
     private long startTime;
@@ -26,6 +26,7 @@ public class SimulationStatisticResult {
     private double DeltaT;
     private Queue<Task> tasks = new LinkedList<>();
     private List<EdgeServer> edgeServers = new ArrayList<>();
+    private LBAlgorithm lbAlgorithm;
 
     public SimulationStatisticResult(long startTime, SimulationConfig config) {
         this.config = config;
@@ -71,7 +72,7 @@ public class SimulationStatisticResult {
 
     public void writeToCsv() {
         SimulationMetricResult result = toMetricResult();
-        String dir = "result/";
+        String dir = "result/" + lbAlgorithm.resultDirPath() + "/";
         String simulationState = String.format("DeltaT-%.2f-SimulationTime-%.2f", getDeltaT(), getTotalSimulationTime());
         CsvUtils.writeMapToCsv(dir + String.format("LBF-%s.csv", simulationState), result.getLBFOverTimeMap());
         CsvUtils.writeMapToCsv(dir + String.format("throughput-%s.csv", simulationState), result.getThroughputOverTimeMap());

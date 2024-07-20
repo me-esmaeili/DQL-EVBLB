@@ -29,6 +29,7 @@ public class Simulation {
     public Simulation(LBAlgorithm lbAlgorithm, SimulationConfig simulationConfig, SimulationState simulationState) {
         this.simulationConfig = simulationConfig;
         this.simulationStatisticResult = new SimulationStatisticResult(System.currentTimeMillis(), this.simulationConfig);
+        this.simulationStatisticResult.setLbAlgorithm(lbAlgorithm);
         this.random = new Random();
         this.simulationState = simulationState;
         this.voronoiUtils = new VoronoiUtils();

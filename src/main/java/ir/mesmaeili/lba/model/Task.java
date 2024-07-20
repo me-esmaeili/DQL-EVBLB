@@ -37,7 +37,7 @@ public class Task {
     private Coordinate location;
 
     public Task() {
-        this.id = getId();
+        this.id = generateId();
         this.memory = SimulationConfig.getRandomTaskMemoryInMB();
         this.disk = SimulationConfig.getRandomTaskDiskInMB();
         this.cpu = SimulationConfig.getRandomTaskCpuInMhz();
@@ -51,7 +51,7 @@ public class Task {
         return new BigDecimal(finishTime - arrivalTime).doubleValue();
     }
 
-    public synchronized static long getId() {
+    public synchronized static long generateId() {
         return counter++;
     }
 }

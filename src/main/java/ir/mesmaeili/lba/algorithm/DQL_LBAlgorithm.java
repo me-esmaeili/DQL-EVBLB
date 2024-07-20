@@ -67,4 +67,9 @@ public class DQL_LBAlgorithm extends EvblbAlgorithm {
     public NeighborSelector getNeighborSelector() {
         return neighborSelection;
     }
+
+    @Override
+    public String resultDirPath() {
+        return "/dql";
+    }
 }

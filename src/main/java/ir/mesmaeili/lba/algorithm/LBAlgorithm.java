@@ -18,4 +18,6 @@ public interface LBAlgorithm {
     default void afterScheduledProcessing() {
         return;
     }
+
+    String resultDirPath();
 }

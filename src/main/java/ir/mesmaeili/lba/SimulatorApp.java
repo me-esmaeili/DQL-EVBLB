@@ -1,6 +1,7 @@
 package ir.mesmaeili.lba;
 
 import ir.mesmaeili.lba.algorithm.DQL_LBAlgorithm;
+import ir.mesmaeili.lba.algorithm.EvblbAlgorithm;
 import ir.mesmaeili.lba.algorithm.EvblbConfig;
 import ir.mesmaeili.lba.algorithm.LBAlgorithm;
 import ir.mesmaeili.lba.config.SimulationConfig;
@@ -26,15 +27,25 @@ public class SimulatorApp {
     public static void main(String[] args) {
         SimulationConfig simulationConfig = new SimulationConfig();
         simulationConfig.setServerCount(50);
-        simulationConfig.setServerMaxQueueSize(500);
+        simulationConfig.setServerMaxQueueSize(1000);
         simulationConfig.setSpaceX(1000);
         simulationConfig.setSpaceY(1000);
         simulationConfig.setDeltaT(1.);
-        simulationConfig.setTaskUniformRange(Pair.of(300, 500));
+        simulationConfig.setTaskUniformRange(Pair.of(400, 600));
         simulationConfig.setTotalSimulationTime(100);
 
         log.info("Start simulation at {}", new Date());
-        SimulationStatisticResult result = SimulateEVBLB(simulationConfig);
+        EvblbConfig config = new EvblbConfig();
+        // Compute the Voronoi Tessellation (VT)
+        List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+        config.setVoronoiTessellation(vb.generateDiagram(points));
+
+        LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, config, 100, 50);
+        LBAlgorithm lbAlgorithm = new EvblbAlgorithm(simulationConfig, config);
+
+        SimulationState simulationState = new SimulationState();
+        Simulation simulation = new Simulation(dql, simulationConfig, simulationState);
+        SimulationStatisticResult result = simulation.run();
         log.info("Finish simulation at {}", new Date());
 
         SimulationChart simulationChart = new SimulationChart();
@@ -44,16 +55,5 @@ public class SimulatorApp {
         result.printReport();
 
         result.writeToCsv();
-    }
-
-    private static SimulationStatisticResult SimulateEVBLB(SimulationConfig simulationConfig) {
-        EvblbConfig config = new EvblbConfig();
-        // Compute the Voronoi Tessellation (VT)
-        List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
-        config.setVoronoiTessellation(vb.generateDiagram(points));
-        LBAlgorithm evblbAlgorithm = new DQL_LBAlgorithm(simulationConfig, config, 100, 50);
-        SimulationState simulationState = new SimulationState();
-        Simulation simulation = new Simulation(evblbAlgorithm, simulationConfig, simulationState);
-        return simulation.run();
     }
 }

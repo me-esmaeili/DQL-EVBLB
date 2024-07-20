@@ -81,6 +81,11 @@ public class EvblbAlgorithm implements LBAlgorithm {
     }
 
     @Override
+    public String resultDirPath() {
+        return "/evblb";
+    }
+
+    @Override
     public void setServerLocations(List<EdgeServer> servers) {
         List<Coordinate> centers = vu.getVoronoiCenters(config.getVoronoiTessellation());
         if (servers.size() != centers.size()) {

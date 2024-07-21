@@ -86,9 +86,9 @@ public class SimulationStatisticResult {
         StringBuilder sb = new StringBuilder();
         sb.append("\n\n-------------- Simulation Report --------------\n");
         sb.append(String.format("Simulation start time: %d\n", startTime));
-        sb.append(String.format("Simulation round count: %d\n", startTime));
-        sb.append(String.format("Simulation DeltaT : %d\n", startTime));
-        sb.append(String.format("Simulation finish time: %d\n\n", startTime));
+        sb.append(String.format("Simulation round count: %d\n", totalRounds));
+        sb.append(String.format("Simulation DeltaT : %.2f\n", getDeltaT()));
+        sb.append(String.format("Simulation finish time: %d\n\n", finishTime));
 
         sb.append("-------------- Servers --------------\n");
         sb.append(String.format("Total Server count : %d\n", edgeServers.size()));

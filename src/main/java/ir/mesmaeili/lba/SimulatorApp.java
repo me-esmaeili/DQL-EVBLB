@@ -27,11 +27,11 @@ public class SimulatorApp {
         SimulationConfig simulationConfig = new SimulationConfig();
         simulationConfig.setServerCount(50);
         simulationConfig.setServerMaxQueueSize(500);
-        simulationConfig.setSpaceX(1000);
-        simulationConfig.setSpaceY(1000);
-        simulationConfig.setDeltaT(2);
-        simulationConfig.setTaskUniformRange(Pair.of(200, 300));
-        simulationConfig.setTotalSimulationTime(200);
+        simulationConfig.setSpaceX(50);
+        simulationConfig.setSpaceY(50);
+        simulationConfig.setDeltaT(1);
+        simulationConfig.setTaskUniformRange(Pair.of(300, 400));
+        simulationConfig.setTotalSimulationTime(500);
 
         log.info("Start simulation at {}", new Date());
         EvblbConfig config = new EvblbConfig();
@@ -39,7 +39,7 @@ public class SimulatorApp {
         List<Coordinate> points = vu.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
         config.setVoronoiTessellation(vu.generateDiagram(points));
 
-        LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, config, 100, 50);
+        LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, config, 20, 20);
         LBAlgorithm evblb = new EvblbAlgorithm(simulationConfig, config);
 
         SimulationState simulationState = new SimulationState();

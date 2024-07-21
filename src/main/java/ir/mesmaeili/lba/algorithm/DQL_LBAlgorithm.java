@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Slf4j
 public class DQL_LBAlgorithm extends EvblbAlgorithm {
@@ -47,10 +47,9 @@ public class DQL_LBAlgorithm extends EvblbAlgorithm {
                 radius, simulationState.getCurrentRound(), new Date());
 
         for (EdgeServer e_i : simulationState.getEdgeServers()) {
-            neighborSelection.updateRadius(radius);
 
             // now, with optimal radius, select neighbors same as EVBLB
-            List<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers());
+            Set<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers(), radius);
 
             // find neighbor same as EVBLB
             EdgeServer e_k = super.findOptimalNeighbor(neighbors);

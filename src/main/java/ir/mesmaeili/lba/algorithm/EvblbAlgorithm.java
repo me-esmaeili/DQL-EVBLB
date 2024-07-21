@@ -9,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
 
 @Slf4j
 public class EvblbAlgorithm implements LBAlgorithm {
@@ -42,9 +40,17 @@ public class EvblbAlgorithm implements LBAlgorithm {
         // Assign remaining tasks to edge servers
         NeighborSelector neighborSelector = getNeighborSelector();
         for (EdgeServer e_i : simulationState.getEdgeServers()) {
-            List<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers());
+            // find server neighbors
+            Set<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers(), config.getPSI());
+
+            // find optimal neighbor server
             EdgeServer e_k = findOptimalNeighbor(neighbors);
+            log.info("Select neighbor Server {} to send tasks from source Server {}", e_k.getId(), e_i.getId());
+
+            // find all tasks of source server
             Geometry serverRegion = vu.getRegion(config.getVoronoiTessellation(), e_i);
+
+            // send all source servers to selected neighbor server to be executed
             assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);
         }
     }
@@ -55,18 +61,14 @@ public class EvblbAlgorithm implements LBAlgorithm {
     }
 
     @Override
-    public EdgeServer findOptimalNeighbor(List<EdgeServer> servers) {
+    public EdgeServer findOptimalNeighbor(Collection<EdgeServer> servers) {
         if (servers.isEmpty()) {
             return null;
         }
-        EdgeServer serverWithMaxResource = servers.get(0);
-        double maxResource = serverWithMaxResource.calculateRemainingResource(
-                config.getAlpha(),
-                config.getBeta(),
-                config.getGamma(),
-                simulationConfig.getDeltaT());
-        for (int i = 1; i < servers.size(); i++) {
-            EdgeServer edgeServer = servers.get(i);
+        EdgeServer serverWithMaxResource = null;
+        double maxResource = Double.NEGATIVE_INFINITY;
+
+        for (EdgeServer edgeServer : servers) {
             double currentResource = edgeServer.calculateRemainingResource(
                     config.getAlpha(),
                     config.getBeta(),
@@ -85,14 +87,15 @@ public class EvblbAlgorithm implements LBAlgorithm {
         return "/evblb";
     }
 
-    @Override
-    public void setServerLocations(List<EdgeServer> servers) {
+    public void setServerLocations(Collection<EdgeServer> servers) {
         List<Coordinate> centers = vu.getVoronoiCenters(config.getVoronoiTessellation());
         if (servers.size() != centers.size()) {
             throw new RuntimeException("Mismatch Voronoi diagram and Server Count");
         }
-        for (int i = 0; i < servers.size(); i++) {
-            servers.get(i).setLocation(centers.get(i));
+        Iterator<EdgeServer> serverIterator = servers.iterator();
+        Iterator<Coordinate> centerIterator = centers.iterator();
+        while (serverIterator.hasNext() && centerIterator.hasNext()) {
+            serverIterator.next().setLocation(centerIterator.next());
         }
     }
 

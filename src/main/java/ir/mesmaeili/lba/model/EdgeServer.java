@@ -30,7 +30,6 @@ public class EdgeServer {
     private final Map<Integer, List<Task>> roundProcessedTaskQueue;
     private final Map<Integer, List<Task>> roundBlockedTaskQueue;
 
-    private final List<EdgeServer> neighbors;
     private final Map<Integer, ServerPerformanceMetric> metrics;
 
     public EdgeServer(int id, SimulationConfig simulationConfig) {
@@ -39,7 +38,6 @@ public class EdgeServer {
         this.memoryCapacity = SimulationConfig.getRandomServerMemoryInMB();
         this.diskCapacity = SimulationConfig.getRandomServerDiskInGB();
         this.processingCapacity = SimulationConfig.getRandomServerCpuInMhz();
-        this.neighbors = new ArrayList<>();
         this.taskQueue = new LinkedList<>();
         this.cloudQueue = new LinkedList<>();
         this.roundBlockedTaskQueue = new HashMap<>();

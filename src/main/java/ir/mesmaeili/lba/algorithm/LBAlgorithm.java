@@ -3,7 +3,7 @@ package ir.mesmaeili.lba.algorithm;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.model.EdgeServer;
 
-import java.util.List;
+import java.util.Collection;
 
 public interface LBAlgorithm {
 
@@ -11,9 +11,9 @@ public interface LBAlgorithm {
 
     NeighborSelector getNeighborSelector();
 
-    void setServerLocations(List<EdgeServer> servers);
+    void setServerLocations(Collection<EdgeServer> servers);
 
-    EdgeServer findOptimalNeighbor(List<EdgeServer> servers);
+    EdgeServer findOptimalNeighbor(Collection<EdgeServer> servers);
 
     default void afterScheduledProcessing() {
         return;

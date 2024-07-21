@@ -22,9 +22,10 @@ import java.util.Random;
 public class DeepQLearning {
     private static final int EPISODE_COUNT = 100;
     private final static int EPISODE_MAX_TRAIN_COUNT = 10;
-    private static final int STABLE_EPISODE_COUNT = 30;
+    private static final int STABLE_EPISODE_COUNT = 10;
     private static final double ALPHA = 0.1;
     private static final double GAMMA = 0.9;
+    private static final double C_MAX = 0.9;
     private static final double EPISODE_TERMINATION_EPSILON = 0.05;
     private final int STATE_SIZE;
     private final int ACTION_SIZE;
@@ -38,8 +39,11 @@ public class DeepQLearning {
     public DeepQLearning(int stateCount, int actionCount) {
         this.STATE_SIZE = stateCount; // equal to LBF
         this.ACTION_SIZE = actionCount; // equal to Radius
-        this.qTable = new double[this.STATE_SIZE][this.ACTION_SIZE];
         this.random = new Random();
+        this.qTable = new double[this.STATE_SIZE][this.ACTION_SIZE];
+        for (int i = 0; i < this.STATE_SIZE; i++) {
+            this.qTable[i][this.ACTION_SIZE - 1] = 0.00001; // to select max action until fill row
+        }
         this.currentState = random.nextInt(STATE_SIZE);
         this.currentEpisode = 0;
         this.currentTrainEpisode = 0;
@@ -74,17 +78,17 @@ public class DeepQLearning {
                 int nextState = nextState(currentState, action);
                 updateQTable(currentState, action, nextState, reward);
                 if (Math.abs(currentState - nextState) < EPISODE_TERMINATION_EPSILON) {
-                    return NumberUtil.argMax(qTable[currentState]);
+                    return NumberUtil.argMax(qTable[currentState]) + 1;
                 }
                 currentState = nextState;
                 currentTrainEpisode++;
-                return NumberUtil.argMax(qTable[currentState]);
+                return NumberUtil.argMax(qTable[currentState]) + 1;
             } else {
                 this.currentTrainEpisode = 1; // reset episode train
             }
             currentEpisode++;
         }
-        return NumberUtil.argMax(qTable[currentState]);
+        return NumberUtil.argMax(qTable[currentState]) + 1;
     }
 
     private int chooseAction(int episode, int state) {

@@ -23,27 +23,27 @@ import java.util.List;
 public class SimulatorApp {
 
     public static void main(String[] args) {
-        VoronoiUtils vb = new VoronoiUtils();
+        VoronoiUtils vu = new VoronoiUtils();
         SimulationConfig simulationConfig = new SimulationConfig();
-        simulationConfig.setServerCount(20);
-        simulationConfig.setServerMaxQueueSize(200);
+        simulationConfig.setServerCount(50);
+        simulationConfig.setServerMaxQueueSize(500);
         simulationConfig.setSpaceX(1000);
         simulationConfig.setSpaceY(1000);
-        simulationConfig.setDeltaT(1.1);
-        simulationConfig.setTaskUniformRange(Pair.of(300, 400));
-        simulationConfig.setTotalSimulationTime(100);
+        simulationConfig.setDeltaT(2);
+        simulationConfig.setTaskUniformRange(Pair.of(200, 300));
+        simulationConfig.setTotalSimulationTime(200);
 
         log.info("Start simulation at {}", new Date());
         EvblbConfig config = new EvblbConfig();
         // Compute the Voronoi Tessellation (VT)
-        List<Coordinate> points = vb.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
-        config.setVoronoiTessellation(vb.generateDiagram(points));
+        List<Coordinate> points = vu.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+        config.setVoronoiTessellation(vu.generateDiagram(points));
 
         LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, config, 100, 50);
-        LBAlgorithm lbAlgorithm = new EvblbAlgorithm(simulationConfig, config);
+        LBAlgorithm evblb = new EvblbAlgorithm(simulationConfig, config);
 
         SimulationState simulationState = new SimulationState();
-        Simulation simulation = new Simulation(dql, simulationConfig, simulationState);
+        Simulation simulation = new Simulation(evblb, simulationConfig, simulationState);
         SimulationStatisticResult result = simulation.run();
         log.info("Finish simulation at {}", new Date());
 

@@ -11,8 +11,8 @@ import org.locationtech.jts.geom.Geometry;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EvblbConfig {
-    private double alpha = 0.34;
-    private double beta = 0.33;
-    private double gamma = 0.33;
+    private double alpha = 0.1; // mem coefficient
+    private double beta = 0.1; // disk coefficient
+    private double gamma = 0.8; // cpu coefficient
     private Geometry voronoiTessellation;
 }

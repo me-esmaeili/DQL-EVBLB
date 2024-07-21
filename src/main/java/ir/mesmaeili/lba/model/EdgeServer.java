@@ -27,11 +27,11 @@ public class EdgeServer {
     private final Queue<Task> taskQueue;
     private final Queue<Task> cloudQueue;
     private final SimulationConfig simulationConfig;
-    private final Map<Double, List<Task>> roundProcessedTaskQueue;
-    private final Map<Double, List<Task>> roundBlockedTaskQueue;
+    private final Map<Integer, List<Task>> roundProcessedTaskQueue;
+    private final Map<Integer, List<Task>> roundBlockedTaskQueue;
 
     private final List<EdgeServer> neighbors;
-    private final Map<Double, ServerPerformanceMetric> metrics;
+    private final Map<Integer, ServerPerformanceMetric> metrics;
 
     public EdgeServer(int id, SimulationConfig simulationConfig) {
         this.id = id;
@@ -55,27 +55,19 @@ public class EdgeServer {
         } else {
             log.info("Could not add task {} to server {} in simulation time {}",
                     task.getId(), this.id, simulationState.getCurrentSimulationTime());
-            roundBlockedTaskQueue.computeIfAbsent(simulationState.getCurrentSimulationTime(), k -> new ArrayList<>()).add(task);
+            roundBlockedTaskQueue.computeIfAbsent(simulationState.getCurrentRound(), k -> new ArrayList<>()).add(task);
         }
     }
 
     public double calculateRemainingResource(double alpha, double beta, double gamma, double deltaT) {
-        double usedMemory = 0.;
-        double usedDisk = 0.;
-        double usedCpu = 0.;
-        for (Task task : taskQueue) {
-            usedMemory += task.getMemory();
-            usedDisk += task.getDisk();
-            usedCpu += task.getCpu() / deltaT;
-        }
-        double normalizedMemory = alpha * (usedMemory / memoryCapacity);
-        double normalizedDisk = beta * (usedDisk / diskCapacity);
-        double normalizedCpu = gamma * (usedCpu / processingCapacity);
-
-        return 1 - (normalizedMemory + normalizedDisk + normalizedCpu);
+        double taskNormalizedResource = taskQueue.stream().mapToDouble(task -> (alpha * task.getMemory() +
+                beta * task.getDisk() +
+                gamma * (task.getCpu() / deltaT))).sum();
+        double serverNormalizedResource = alpha * memoryCapacity + beta * diskCapacity + gamma * processingCapacity;
+        return serverNormalizedResource - taskNormalizedResource;
     }
 
-    public synchronized void executeTasks(double deltaT, double currentSimulationTime) {
+    public synchronized void executeTasks(double deltaT, double currentSimulationTime, int currentRound) {
         BigDecimal currentTime = BigDecimal.ZERO;
         BigDecimal deltaTBig = BigDecimal.valueOf(deltaT);
         BigDecimal currentSimulationTimeBig = BigDecimal.valueOf(currentSimulationTime);
@@ -99,7 +91,7 @@ public class EdgeServer {
                     task.setProcessStartTime(taskStartProcessingTime.doubleValue());
                     currentTime = currentTime.add(taskProcessingTimeSeconds); // proceed time
                     task.setFinishTime(taskStartProcessingTime.add(taskProcessingTimeSeconds).doubleValue());
-                    roundProcessedTaskQueue.computeIfAbsent(currentSimulationTime, k -> new ArrayList<>()).add(task);
+                    roundProcessedTaskQueue.computeIfAbsent(currentRound, k -> new ArrayList<>()).add(task);
                     task.setRemainingCpu(0); // Task is fully processed, set remaining CPU to 0
                 } else {
                     // Calculate the remaining time for DeltaT and reduce the remaining CPU of the task accordingly
@@ -127,11 +119,13 @@ public class EdgeServer {
         return Math.min(1, totalCpuUsage / (processingCapacity * deltaT));
     }
 
-    public void calculateMetrics(double currentSimulationTime) {
+    public void calculateMetrics(int currentRound) {
         ServerPerformanceMetric metric = new ServerPerformanceMetric();
         metric.setCpuUtilization(calculateCpuUtilization(simulationConfig.getDeltaT()));
         metric.setQueueSize(taskQueue.size());
-        this.metrics.put(currentSimulationTime, metric);
+        log.info("Server {}: Cpu Utilization is {}, Queue Size is {} at round {}",
+                this.getId(), metric.getCpuUtilization(), metric.getQueueSize(), currentRound);
+        this.metrics.put(currentRound, metric);
     }
 
     public double getCpuUsage() {

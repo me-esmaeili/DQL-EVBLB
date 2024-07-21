@@ -45,11 +45,11 @@ public class SimulationStatisticResult {
 
     public SimulationMetricResult toMetricResult() {
         // Initialize maps to collect metrics
-        Map<Double, List<Integer>> averageQueueSizeMap = new HashMap<>();
-        Map<Double, List<Double>> LBFMap = new HashMap<>();
-        Map<Double, List<Double>> averageResponseTimeMap = new HashMap<>();
-        Map<Double, List<Double>> averageMakespanTimeMap = new HashMap<>();
-        Map<Double, List<Double>> averageThroughputMap = new HashMap<>();
+        Map<Integer, List<Integer>> averageQueueSizeMap = new HashMap<>();
+        Map<Integer, List<Double>> LBFMap = new HashMap<>();
+        Map<Integer, List<Double>> averageResponseTimeMap = new HashMap<>();
+        Map<Integer, List<Double>> averageMakespanTimeMap = new HashMap<>();
+        Map<Integer, List<Double>> averageThroughputMap = new HashMap<>();
 
         // Collect metrics from each server
         this.getEdgeServers().forEach(server ->
@@ -129,29 +129,29 @@ public class SimulationStatisticResult {
         log.info(sb.toString());
     }
 
-    private <T extends Number> Map<Double, Double> averageValues(Map<Double, List<T>> dataMap) {
-        Map<Double, Double> result = new HashMap<>();
-        dataMap.forEach((time, dataList) -> {
+    private <T extends Number> Map<Integer, Double> averageValues(Map<Integer, List<T>> dataMap) {
+        Map<Integer, Double> result = new HashMap<>();
+        dataMap.forEach((round, dataList) -> {
             double avg = dataList.stream().mapToDouble(Number::doubleValue).sum() / (this.totalRounds * dataList.size());
-            result.put(time, avg);
+            result.put(round, avg);
         });
         return result;
     }
 
-    private <T extends Number> Map<Double, Double> sumValues(Map<Double, List<T>> dataMap) {
-        Map<Double, Double> result = new HashMap<>();
-        dataMap.forEach((time, dataList) -> {
+    private <T extends Number> Map<Integer, Double> sumValues(Map<Integer, List<T>> dataMap) {
+        Map<Integer, Double> result = new HashMap<>();
+        dataMap.forEach((round, dataList) -> {
             double avg = dataList.stream().mapToDouble(Number::doubleValue).sum();
-            result.put(time, avg);
+            result.put(round, avg);
         });
         return result;
     }
 
-    public static Map<Double, Double> aggregateLBF(Map<Double, List<Double>> cpuUtilizationMap) {
-        Map<Double, Double> result = new HashMap<>();
-        cpuUtilizationMap.forEach((time, dataList) -> {
+    public static Map<Integer, Double> aggregateLBF(Map<Integer, List<Double>> cpuUtilizationMap) {
+        Map<Integer, Double> result = new HashMap<>();
+        cpuUtilizationMap.forEach((round, dataList) -> {
             double avg = MetricUtil.calculateLBF(dataList);
-            result.put(time, avg);
+            result.put(round, avg);
         });
         return result;
     }

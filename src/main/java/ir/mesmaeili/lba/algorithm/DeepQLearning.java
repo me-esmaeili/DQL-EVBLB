@@ -1,6 +1,7 @@
 package ir.mesmaeili.lba.algorithm;
 
 import ir.mesmaeili.lba.util.NumberUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.deeplearning4j.nn.api.Layer;
 import org.deeplearning4j.nn.conf.MultiLayerConfiguration;
 import org.deeplearning4j.nn.conf.NeuralNetConfiguration;
@@ -13,22 +14,20 @@ import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.learning.config.Adam;
 import org.nd4j.linalg.lossfunctions.LossFunctions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Random;
 
+@Slf4j
 public class DeepQLearning {
-    private static final Logger log = LoggerFactory.getLogger(DeepQLearning.class.getName());
     private static final int EPISODE_COUNT = 100;
+    private final static int EPISODE_MAX_TRAIN_COUNT = 10;
     private static final int STABLE_EPISODE_COUNT = 30;
-    private final int STATE_SIZE;
-    private final int ACTION_SIZE;
     private static final double ALPHA = 0.1;
     private static final double GAMMA = 0.9;
     private static final double EPISODE_TERMINATION_EPSILON = 0.05;
-    private final static int EPISODE_MAX_TRAIN_COUNT = 100;
+    private final int STATE_SIZE;
+    private final int ACTION_SIZE;
     private final double[][] qTable;
     private final Random random;
     private final MultiLayerNetwork model;
@@ -60,7 +59,6 @@ public class DeepQLearning {
                         .activation(Activation.IDENTITY)
                         .nIn(10).nOut(STATE_SIZE).build())
                 .build();
-
         // Create the network
         model = new MultiLayerNetwork(conf);
         model.init();
@@ -97,7 +95,6 @@ public class DeepQLearning {
         }
     }
 
-
     private int bestAction(int state) {
         // Convert state to neural network input format
         INDArray input = Nd4j.createFromArray(qTable[state]).reshape(1, ACTION_SIZE);
@@ -106,7 +103,6 @@ public class DeepQLearning {
         // Find the best action
         return Nd4j.argMax(qValues).getInt(0);
     }
-
 
     private void updateQTable(int state, int action, int nextState, double reward) {
         double maxNextQValue = Arrays.stream(qTable[nextState]).max().orElse(0);

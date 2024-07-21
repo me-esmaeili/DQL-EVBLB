@@ -9,14 +9,14 @@ import java.util.Map;
 
 public class MetricUtil {
     public static double calculateLBF(List<Double> cpuUtilization) {
-        double averageCpuUtilization = cpuUtilization.stream().mapToDouble(d -> d).average().orElse(0);
-        double sumSquaredDifferences = cpuUtilization.stream().mapToDouble(serverUtilization -> Math.pow(serverUtilization - averageCpuUtilization, 2)).sum();
+        double avgCpuUtilization = cpuUtilization.stream().mapToDouble(d -> d).average().orElse(0);
+        double sumSquaredDifferences = cpuUtilization.stream().mapToDouble(u -> Math.pow(u - avgCpuUtilization, 2)).sum();
         return Math.sqrt(sumSquaredDifferences / cpuUtilization.size());
     }
 
-    public static double calculateAverageResponseTime(double time, EdgeServer server) {
-        if (server.getRoundProcessedTaskQueue().containsKey(NumberUtil.round(time, 2))) {
-            return server.getRoundProcessedTaskQueue().get(NumberUtil.round(time, 2)).stream()
+    public static double calculateAverageResponseTime(Integer time, EdgeServer server) {
+        if (server.getRoundProcessedTaskQueue().containsKey(time)) {
+            return server.getRoundProcessedTaskQueue().get(time).stream()
                     .mapToDouble(Task::getResponseTime)
                     .average()
                     .orElse(0);
@@ -25,17 +25,17 @@ public class MetricUtil {
         }
     }
 
-    public static double calculateThroughput(double time, double deltaT, EdgeServer server) {
-        if (server.getRoundProcessedTaskQueue().containsKey(NumberUtil.round(time, 2))) {
-            return server.getRoundProcessedTaskQueue().get(NumberUtil.round(time, 2)).size() / deltaT;
+    public static double calculateThroughput(Integer time, double deltaT, EdgeServer server) {
+        if (server.getRoundProcessedTaskQueue().containsKey(time)) {
+            return server.getRoundProcessedTaskQueue().get((time)).size() / deltaT;
         } else {
             return 0.;
         }
     }
 
-    public static double calculateAverageMakespanTime(double time, EdgeServer server) {
-        if (server.getRoundProcessedTaskQueue().containsKey(NumberUtil.round(time, 2))) {
-            return server.getRoundProcessedTaskQueue().get(NumberUtil.round(time, 2)).stream()
+    public static double calculateAverageMakespanTime(Integer time, EdgeServer server) {
+        if (server.getRoundProcessedTaskQueue().containsKey(time)) {
+            return server.getRoundProcessedTaskQueue().get((time)).stream()
                     .mapToDouble(Task::getMakespanTime)
                     .average()
                     .orElse(0);
@@ -44,26 +44,26 @@ public class MetricUtil {
         }
     }
 
-    public static Map<Double, Double> calculateBlockingRate(List<EdgeServer> edgeServers) {
-        Map<Double, Double> blockingRate = new HashMap<>();
-        Map<Double, Double> totalBlockedTasks = new HashMap<>();
-        Map<Double, Double> totalProcessTasks = new HashMap<>();
+    public static Map<Integer, Double> calculateBlockingRate(List<EdgeServer> edgeServers) {
+        Map<Integer, Double> blockingRate = new HashMap<>();
+        Map<Integer, Double> totalBlockedTasks = new HashMap<>();
+        Map<Integer, Double> totalProcessTasks = new HashMap<>();
         for (EdgeServer server : edgeServers) {
             server.getRoundBlockedTaskQueue().forEach((time, value) -> totalBlockedTasks.merge(time, value.size() * 1.0, Double::sum));
             server.getRoundProcessedTaskQueue().forEach((time, value) -> totalProcessTasks.merge(time, value.size() * 1.0, Double::sum));
         }
 
-        // computer rate in every time point
-        for (Double key : totalProcessTasks.keySet()) {
-            Double blocked = totalBlockedTasks.get(key);
-            Double processed = totalProcessTasks.get(key);
+        // computer rate in every round point
+        for (Integer round : totalProcessTasks.keySet()) {
+            Double blocked = totalBlockedTasks.get(round);
+            Double processed = totalProcessTasks.get(round);
             if (blocked != null && processed != null) {
                 double total = blocked + processed;
                 if (total != 0) {
-                    blockingRate.put(key, blocked / total);
+                    blockingRate.put(round, blocked / total);
                 }
             } else {
-                blockingRate.put(key, 0.);
+                blockingRate.put(round, 0.);
             }
         }
         return blockingRate;

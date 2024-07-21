@@ -39,8 +39,8 @@ public class SimulationChart {
         drawChart(throughputTimeSeries, "Average Throughput Time Over Time", "Time", "Throughput(#/s)");
     }
 
-    private <T extends Number> void addDataToSeries(Map<Double, Double> dataMap, XYSeries series) {
-        dataMap.forEach((time, data) -> series.add((double) time, data));
+    private void addDataToSeries(Map<Integer, Double> dataMap, XYSeries series) {
+        dataMap.forEach(series::add);
     }
 
     private void drawChart(XYSeries series, String chartTitle, String xAxisLabel, String yAxisLabel) {

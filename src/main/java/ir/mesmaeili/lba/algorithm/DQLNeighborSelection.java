@@ -30,7 +30,7 @@ public class DQLNeighborSelection extends EvblbBaseNeighborSelection {
         return radius;
     }
 
-    public int updateRadius(int newRadius) {
-        return radius = newRadius;
+    public void updateRadius(int newRadius) {
+        radius = newRadius;
     }
 }

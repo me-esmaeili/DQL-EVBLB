@@ -33,12 +33,13 @@ public class Scheduler {
         lbAlgorithm.dispatchTasksOverServers(simulationState);
 
         // calculated metrics with depend on dispatch tasks over algorithm e.g. LBF
-        TaskCompleteListener listener = server -> server.calculateMetrics(simulationState.getCurrentSimulationTime());
+        TaskCompleteListener listener = server -> server.calculateMetrics(simulationState.getCurrentRound());
 
         // now execute tasks on servers
         for (EdgeServer edgeServer : simulationState.getEdgeServers()) {
             ExecutorService executor = serverExecutors.get(edgeServer);
-            executor.submit(new TaskExecutor(edgeServer, simulationConfig.getDeltaT(), simulationState.getCurrentSimulationTime(), listener));
+            executor.submit(new TaskExecutor(edgeServer, simulationConfig.getDeltaT(), simulationState.getCurrentSimulationTime(),
+                    simulationState.getCurrentRound(), listener));
         }
     }
 

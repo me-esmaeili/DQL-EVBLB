@@ -9,6 +9,7 @@ import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.result.SimulationChart;
 import ir.mesmaeili.lba.simulator.Simulation;
 import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
+import ir.mesmaeili.lba.util.PoissonDiskSampling;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -26,17 +27,20 @@ public class SimulatorApp {
         VoronoiUtils vu = new VoronoiUtils();
         SimulationConfig simulationConfig = new SimulationConfig();
         simulationConfig.setServerCount(50);
-        simulationConfig.setServerMaxQueueSize(500);
+        simulationConfig.setServerMaxQueueSize(1000);
         simulationConfig.setSpaceX(50);
         simulationConfig.setSpaceY(50);
         simulationConfig.setDeltaT(1);
-        simulationConfig.setTaskUniformRange(Pair.of(300, 400));
-        simulationConfig.setTotalSimulationTime(500);
+        simulationConfig.setTaskUniformRange(Pair.of(400, 600));
+        simulationConfig.setTotalSimulationTime(200);
 
         log.info("Start simulation at {}", new Date());
         EvblbConfig config = new EvblbConfig();
         // Compute the Voronoi Tessellation (VT)
-        List<Coordinate> points = vu.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+        List<Coordinate> points = PoissonDiskSampling.generatePoints(
+                simulationConfig.getServerCount(),
+                simulationConfig.getPoisonDskSamplingMinDistance(),
+                simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
         config.setVoronoiTessellation(vu.generateDiagram(points));
 
         LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, config, 20, 20);

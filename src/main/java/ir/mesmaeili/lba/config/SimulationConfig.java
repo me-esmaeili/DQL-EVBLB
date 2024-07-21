@@ -22,6 +22,8 @@ public class SimulationConfig {
     private static List<Integer> serverMemoryCapacityRange = Arrays.asList(4, 8, 16, 32, 64);
     @NotNull
     private static List<Integer> serverDiskCapacityRange = Arrays.asList(500, 1000, 2000, 4000);
+
+    private double poisonDskSamplingMinDistance = 5.0; // Minimum distance between points
     private int BSCount = 1000;
     private int serverMaxQueueSize = 200;
     private int spaceX;

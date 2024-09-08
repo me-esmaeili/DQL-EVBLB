@@ -7,12 +7,12 @@ import ir.mesmaeili.lba.algorithm.EvblbAlgorithm;
 import ir.mesmaeili.lba.algorithm.EvblbConfig;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
+import ir.mesmaeili.lba.model.Point;
 import ir.mesmaeili.lba.simulator.Simulation;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
-import org.locationtech.jts.geom.Coordinate;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -68,13 +68,13 @@ public class WebApplication {
         simulationConfig.setSpaceX(1000);
         simulationConfig.setSpaceY(1000);
         simulationConfig.setDeltaT(1.5);
-        simulationConfig.setTaskUniformRange(Pair.of(100, 200));
+        simulationConfig.setTaskUniformRange(new ImmutablePair<>(100, 200));
         simulationConfig.setTotalSimulationTime(100);
 
         EvblbConfig config = new EvblbConfig();
         // Compute the Voronoi Tessellation (VT)
-        List<Coordinate> points = vu.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
-        config.setVoronoiTessellation(vu.generateDiagram(points));
+        List<Point> points = vu.generatePoints(simulationConfig.getServerCount(), simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+        config.setVoronoiTessellation(vu.generateDiagram(simulationConfig.getSpaceX(), simulationConfig.getSpaceY(), points));
         EvblbAlgorithm evblbAlgorithm = new EvblbAlgorithm(simulationConfig, config);
         Simulation simulation = new Simulation(evblbAlgorithm, simulationConfig, simulationState);
 

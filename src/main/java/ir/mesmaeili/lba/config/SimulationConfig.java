@@ -1,11 +1,13 @@
 package ir.mesmaeili.lba.config;
 
-import jakarta.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import ir.mesmaeili.lba.model.EdgeServer;
+import ir.mesmaeili.lba.model.Point;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.tuple.Pair;
-import org.locationtech.jts.geom.Coordinate;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -13,55 +15,59 @@ import java.util.Random;
 
 @Getter
 @Setter
-public class SimulationConfig {
+public class SimulationConfig implements Serializable {
     private final static Random rand = new Random();
     private int serverCount = 200;
-    @NotNull
-    private List<Coordinate> serverLocations = new ArrayList<>();
-    @NotNull
-    private static List<Integer> serverMemoryCapacityRange = Arrays.asList(4, 8, 16, 32, 64);
-    @NotNull
-    private static List<Integer> serverDiskCapacityRange = Arrays.asList(500, 1000, 2000, 4000);
+    private List<Point> serverLocations = new ArrayList<>();
+    private List<EdgeServer> edgeServers = new ArrayList<>();
+    private List<Integer> serverMemoryCapacityRange = Arrays.asList(4, 8, 16, 32, 64);
+    private List<Integer> serverDiskCapacityRange = Arrays.asList(500, 1000, 2000, 4000);
 
-    private double poisonDskSamplingMinDistance = 5.0; // Minimum distance between points
+    private float poisonDskSamplingMinDistance; // Minimum distance between points
     private int BSCount = 1000;
     private int serverMaxQueueSize = 200;
     private int spaceX;
     private int spaceY;
     private double deltaT;
     private float totalSimulationTime; // in seconds
-    @NotNull
-    private static Pair<Integer, Integer> taskUniformRange = Pair.of(100, 200);
+    private ImmutablePair<Integer, Integer> taskUniformRange = new ImmutablePair<>(100, 200);
 
-    public static double getRandomServerMemoryInMB() {
+    public void addServer(EdgeServer server) {
+        edgeServers.add(server);
+    }
+
+    @JsonIgnore
+    public double getRandomServerMemoryInMB() {
         return 1000. * (serverMemoryCapacityRange).get(rand.nextInt(serverMemoryCapacityRange.size() - 1));
     }
 
-    public static double getRandomServerDiskInGB() {
+    @JsonIgnore
+    public double getRandomServerDiskInGB() {
         return serverDiskCapacityRange.get(rand.nextInt(serverDiskCapacityRange.size() - 1));
     }
 
-    public static double getRandomServerCpuInMhz() {
+    @JsonIgnore
+    public double getRandomServerCpuInMhz() {
         return 1000 + 100. * rand.nextInt(40);
     }
 
-    public static double getRandomTaskMemoryInMB() {
-        return 100 + 100. * rand.nextInt(5);
+    @JsonIgnore
+    public double getRandomTaskMemoryInMB() {
+        return 400 + 100. * rand.nextDouble(1);
     }
 
-    public static double getRandomTaskDiskInMB() {
-        return 100 + 100. * rand.nextInt(10);
+    @JsonIgnore
+    public double getRandomTaskDiskInMB() {
+        return 500 + 100. * rand.nextDouble(1);
     }
 
-    public static double getRandomTaskCpuInMhz() {
-        return 100 + 100. * rand.nextInt(10);
+    @JsonIgnore
+    public double getRandomTaskCpuInMhz() {
+        return 500 + 100. * rand.nextDouble(5);
     }
 
-    public static int getTaskCountUniformRandom() {
+    @JsonIgnore
+    public int getTaskCountUniformRandom() {
         return taskUniformRange.getKey() + rand.nextInt(taskUniformRange.getValue() - taskUniformRange.getKey() + 1);
-    }
-
-    public void setTaskUniformRange(Pair<Integer, Integer> range) {
-        taskUniformRange = range;
     }
 }

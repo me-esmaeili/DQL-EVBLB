@@ -11,8 +11,6 @@ public interface LBAlgorithm {
 
     NeighborSelector getNeighborSelector();
 
-    void setServerLocations(Collection<EdgeServer> servers);
-
     EdgeServer findOptimalNeighbor(Collection<EdgeServer> servers);
 
     default void afterScheduledProcessing() {

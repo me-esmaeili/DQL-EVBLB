@@ -1,51 +1,53 @@
 package ir.mesmaeili.lba.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
 
 @Slf4j
 @Getter
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class EdgeServer {
+public class EdgeServer implements Serializable {
     @EqualsAndHashCode.Include
-    private final int id;
+    private int id;
     @Getter
     @Setter
-    private Coordinate location;
-    private final double memoryCapacity; // in MB
-    private final double diskCapacity; // in GB
-    private final double processingCapacity; // in MHZ
-    private final Queue<Task> taskQueue;
-    private final Queue<Task> cloudQueue;
-    private final SimulationConfig simulationConfig;
-    private final Map<Integer, List<Task>> roundProcessedTaskQueue;
-    private final Map<Integer, List<Task>> roundBlockedTaskQueue;
-
-    private final Map<Integer, ServerPerformanceMetric> metrics;
+    private Point location;
+    private double memoryCapacity; // in MB
+    private double diskCapacity; // in GB
+    private double processingCapacity; // in MHZ
+    @JsonIgnore
+    private final Queue<Task> taskQueue = new LinkedList<>();
+    @JsonIgnore
+    private final Queue<Task> cloudQueue = new LinkedList<>();
+    @JsonIgnore
+    private final Map<Integer, List<Task>> roundProcessedTaskQueue = new HashMap<>();
+    @JsonIgnore
+    private final Map<Integer, List<Task>> roundBlockedTaskQueue = new HashMap<>();
+    @JsonIgnore
+    private final Map<Integer, ServerPerformanceMetric> metrics = new HashMap<>();
 
     public EdgeServer(int id, SimulationConfig simulationConfig) {
         this.id = id;
-        this.simulationConfig = simulationConfig;
-        this.memoryCapacity = SimulationConfig.getRandomServerMemoryInMB();
-        this.diskCapacity = SimulationConfig.getRandomServerDiskInGB();
-        this.processingCapacity = SimulationConfig.getRandomServerCpuInMhz();
-        this.taskQueue = new LinkedList<>();
-        this.cloudQueue = new LinkedList<>();
-        this.roundBlockedTaskQueue = new HashMap<>();
-        this.metrics = new HashMap<>();
-        this.roundProcessedTaskQueue = new HashMap<>();
+        this.memoryCapacity = simulationConfig.getRandomServerMemoryInMB();
+        this.diskCapacity = simulationConfig.getRandomServerDiskInGB();
+        this.processingCapacity = simulationConfig.getRandomServerCpuInMhz();
     }
 
-    public void addTask(Task task, SimulationState simulationState) {
+    public void addTask(Task task, SimulationState simulationState, SimulationConfig simulationConfig) {
         if (taskQueue.size() < simulationConfig.getServerMaxQueueSize()) {
             taskQueue.add(task);
             log.info("Add task {} to server {} in simulation time {} with queue size {}",
@@ -117,7 +119,7 @@ public class EdgeServer {
         return Math.min(1, totalCpuUsage / (processingCapacity * deltaT));
     }
 
-    public void calculateMetrics(int currentRound) {
+    public void calculateMetrics(int currentRound, SimulationConfig simulationConfig) {
         ServerPerformanceMetric metric = new ServerPerformanceMetric();
         metric.setCpuUtilization(calculateCpuUtilization(simulationConfig.getDeltaT()));
         metric.setQueueSize(taskQueue.size());
@@ -126,14 +128,17 @@ public class EdgeServer {
         this.metrics.put(currentRound, metric);
     }
 
+    @JsonIgnore
     public double getCpuUsage() {
         return Math.min(1, taskQueue.stream().map(Task::getCpu).mapToDouble(d -> d).sum() / processingCapacity) * 100;
     }
 
+    @JsonIgnore
     public double getMemoryUsage() {
         return Math.min(1, taskQueue.stream().map(Task::getMemory).mapToDouble(d -> d).sum() / memoryCapacity) * 100;
     }
 
+    @JsonIgnore
     public double getDiskUsage() {
         return Math.min(1, taskQueue.stream().map(Task::getDisk).mapToDouble(d -> d).sum() / diskCapacity) * 100;
     }

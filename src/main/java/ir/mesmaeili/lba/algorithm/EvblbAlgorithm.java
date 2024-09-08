@@ -6,7 +6,6 @@ import ir.mesmaeili.lba.model.EdgeServer;
 import ir.mesmaeili.lba.model.Task;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 
 import java.util.*;
@@ -16,7 +15,6 @@ public class EvblbAlgorithm implements LBAlgorithm {
     protected final SimulationConfig simulationConfig;
     protected SimulationState simulationState;
     protected final EvblbConfig config;
-    protected final VoronoiUtils vu = new VoronoiUtils();
 
     // Constructor
     public EvblbAlgorithm(SimulationConfig simulationConfig, EvblbConfig config) {
@@ -48,7 +46,7 @@ public class EvblbAlgorithm implements LBAlgorithm {
             log.info("Select neighbor Server {} to send tasks from source Server {}", e_k.getId(), e_i.getId());
 
             // find all tasks of source server
-            Geometry serverRegion = vu.getRegion(config.getVoronoiTessellation(), e_i);
+            Geometry serverRegion = VoronoiUtils.getRegion(config.getVoronoiTessellation(), e_i);
 
             // send all source servers to selected neighbor server to be executed
             assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);
@@ -87,18 +85,6 @@ public class EvblbAlgorithm implements LBAlgorithm {
         return "/evblb";
     }
 
-    public void setServerLocations(Collection<EdgeServer> servers) {
-        List<Coordinate> centers = vu.getVoronoiCenters(config.getVoronoiTessellation());
-        if (servers.size() != centers.size()) {
-            throw new RuntimeException("Mismatch Voronoi diagram and Server Count");
-        }
-        Iterator<EdgeServer> serverIterator = servers.iterator();
-        Iterator<Coordinate> centerIterator = centers.iterator();
-        while (serverIterator.hasNext() && centerIterator.hasNext()) {
-            serverIterator.next().setLocation(centerIterator.next());
-        }
-    }
-
     protected double getMaxCpuResource(List<EdgeServer> servers) {
         return servers.stream().mapToDouble(EdgeServer::getProcessingCapacity).max().orElse(0);
     }
@@ -115,14 +101,11 @@ public class EvblbAlgorithm implements LBAlgorithm {
         this.simulationState.getCloudServer().addTask(task);
     }
 
-    protected List<Task> assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {
-        List<Task> allocatedTasks = new ArrayList<>();
-        List<Task> regionTasks = vu.getRegionTasks(region, allTasks);
+    protected void assignTasksInRegionToServer(Geometry region, Queue<Task> allTasks, EdgeServer server) {
+        List<Task> regionTasks = VoronoiUtils.getRegionTasks(region, allTasks);
         for (Task task : regionTasks) {
-            server.addTask(task, this.simulationState);
-            allocatedTasks.add(task);
+            server.addTask(task, this.simulationState, this.simulationConfig);
         }
         log.info("Assign {} tasks to related region in server {}", regionTasks.size(), server.getId());
-        return allocatedTasks;
     }
 }

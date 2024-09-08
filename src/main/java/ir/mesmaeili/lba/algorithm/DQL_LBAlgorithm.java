@@ -4,6 +4,7 @@ import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.model.EdgeServer;
 import ir.mesmaeili.lba.model.Task;
+import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Geometry;
 
@@ -55,7 +56,7 @@ public class DQL_LBAlgorithm extends EvblbAlgorithm {
             EdgeServer e_k = super.findOptimalNeighbor(neighbors);
 
             // find region of desired server same as EVBLB
-            Geometry serverRegion = vu.getRegion(config.getVoronoiTessellation(), e_i);
+            Geometry serverRegion = VoronoiUtils.getRegion(config.getVoronoiTessellation(), e_i);
 
             // finally, assign all tasks of server to it optimal neighbor
             assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);

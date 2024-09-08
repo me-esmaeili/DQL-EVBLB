@@ -12,8 +12,8 @@ public class EvblbBaseNeighborSelection implements NeighborSelector {
 
     private static final double EPSILON = 0.01;
     private static final int C_MAX = 50;
-    private static final double S = 2.0;
-    private static final double NU = 5.;
+    private static final double S = 1.0;
+    private static final double NU = 10;
 
     @Override
     public Set<EdgeServer> findNeighbors(EdgeServer server, Collection<EdgeServer> allServers, int radius) {

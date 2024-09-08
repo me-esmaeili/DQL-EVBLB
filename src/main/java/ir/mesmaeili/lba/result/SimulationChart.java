@@ -8,10 +8,11 @@ import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.util.Map;
 
 public class SimulationChart {
-    public void generateCharts(SimulationStatisticResult result) {
+    public void plot(SimulationStatisticResult result) throws IOException {
         // Initialize series for the charts
         XYSeries queueSizeSeries = new XYSeries("Average Queue Size");
         XYSeries blockingRate = new XYSeries("Blocking Rate");
@@ -21,10 +22,17 @@ public class SimulationChart {
         XYSeries throughputTimeSeries = new XYSeries("Average Throughput Time");
 
         SimulationMetricResult metricResult = result.toMetricResult();
+        Map<Integer, Double> lbfData = metricResult.getLBFOverTimeMap();
+
+        //        Plot plt = Plot.create();
+//        plt.plot().add(new ArrayList<>(lbfData.keySet()), new ArrayList<>(lbfData.values()), "o").label("LBF");
+//        plt.legend().loc("upper right");
+//        plt.title("Scatter Plot");
+//        plt.show();
 
         // Calculate and add data to series
         addDataToSeries(metricResult.getAverageQueueSizeOverTimeMap(), queueSizeSeries);
-        addDataToSeries(metricResult.getLBFOverTimeMap(), cpuUtilizationSeries);
+        addDataToSeries(lbfData, cpuUtilizationSeries);
         addDataToSeries(metricResult.getBlockingRateOverTimeMap(), blockingRate);
         addDataToSeries(metricResult.getAverageResponseTimeOverTimeMap(), responseTimeSeries);
         addDataToSeries(metricResult.getAverageMakespanTimeOverTimeMap(), makeSpanTimeSeries);

@@ -4,12 +4,13 @@ import ir.mesmaeili.lba.algorithm.LBAlgorithm;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.model.EdgeServer;
+import ir.mesmaeili.lba.model.Point;
 import ir.mesmaeili.lba.model.Task;
 import ir.mesmaeili.lba.statistic.SimulationStatisticResult;
 import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Coordinate;
+import org.apache.commons.math3.distribution.PoissonDistribution;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +24,6 @@ public class Simulation {
     private final Random random;
     private final SimulationConfig simulationConfig;
     private final SimulationStatisticResult simulationStatisticResult;
-    private final VoronoiUtils voronoiUtils;
     private final SimulationState simulationState;
 
     public Simulation(LBAlgorithm lbAlgorithm, SimulationConfig simulationConfig, SimulationState simulationState) {
@@ -32,14 +32,11 @@ public class Simulation {
         this.simulationStatisticResult.setLbAlgorithm(lbAlgorithm);
         this.random = new Random();
         this.simulationState = simulationState;
-        this.voronoiUtils = new VoronoiUtils();
 
-        for (int i = 1; i <= simulationConfig.getServerCount(); i++) {
-            EdgeServer edgeServer = new EdgeServer(i, this.simulationConfig);
+        for (EdgeServer edgeServer : simulationConfig.getEdgeServers()) {
             this.simulationState.addServer(edgeServer);
-            simulationStatisticResult.addServer(edgeServer);
+            this.simulationStatisticResult.addServer(edgeServer);
         }
-        lbAlgorithm.setServerLocations(this.simulationState.getEdgeServers());
         this.scheduler = new Scheduler(simulationConfig, this.simulationState, lbAlgorithm);
     }
 
@@ -78,23 +75,24 @@ public class Simulation {
 
     private Queue<Task> generateTasks(double currentSimulationTime) {
         Queue<Task> taskQueue = new LinkedList<>();
-        int numberOfTasks = SimulationConfig.getTaskCountUniformRandom();
-        List<Coordinate> points = simulationState.getEdgeServers().stream().map(EdgeServer::getLocation).toList();
+        PoissonDistribution poisson = new PoissonDistribution(random.nextDouble() * simulationConfig.getDeltaT());
+        int numberOfTasks = simulationConfig.getTaskCountUniformRandom();
+        List<Point> points = simulationState.getEdgeServers().stream().map(EdgeServer::getLocation).toList();
         // First, assign one task to each point
         for (int i = 0; i < Math.min(numberOfTasks, points.size()); i++) {
-            Task task = new Task();
+            Task task = new Task(simulationConfig);
             // task arrival time in range [currentSimulationTime, currentSimulationTime+ U(0,DeltaT)
-            double arrivalTime = currentSimulationTime + (random.nextDouble() * simulationConfig.getDeltaT());
+            double arrivalTime = currentSimulationTime + poisson.sample();
             task.setArrivalTime(arrivalTime);
-            task.setLocation(voronoiUtils.generateRndPoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY()));
+            task.setLocation(VoronoiUtils.generateRndPoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY()));
             taskQueue.add(task);
         }
         // If there are more tasks left, distribute them randomly among the points
         for (int i = points.size(); i < numberOfTasks; i++) {
-            Task task = new Task();
+            Task task = new Task(simulationConfig);
             double arrivalTime = random.nextDouble() * simulationConfig.getDeltaT();
             task.setArrivalTime(arrivalTime);
-            Coordinate location = voronoiUtils.generateRndPoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
+            Point location = VoronoiUtils.generateRndPoint(simulationConfig.getSpaceX(), simulationConfig.getSpaceY());
             task.setLocation(location);
             taskQueue.add(task);
         }

@@ -1,16 +1,18 @@
 package ir.mesmaeili.lba.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.locationtech.jts.geom.Coordinate;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter
+@JsonIgnoreProperties(ignoreUnknown = true)
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class Task {
+public class Task implements Serializable {
     private static long counter = 1;
     @EqualsAndHashCode.Include
     private final long id;
@@ -19,7 +21,7 @@ public class Task {
     private final double cpu; // in MHZ
     @Getter
     @Setter
-    private double remainingCpu = 0.; // in MHZ is used to store remaining for next round of LB excution
+    private double remainingCpu = 0.; // in MHZ is used to store remaining for next round of LB execution
     @Getter
     @Setter
     private double arrivalTime;
@@ -31,13 +33,13 @@ public class Task {
     private double finishTime;
     @Getter
     @Setter
-    private Coordinate location;
+    private Point location;
 
-    public Task() {
+    public Task(SimulationConfig simulationConfig) {
         this.id = generateId();
-        this.memory = SimulationConfig.getRandomTaskMemoryInMB();
-        this.disk = SimulationConfig.getRandomTaskDiskInMB();
-        this.cpu = SimulationConfig.getRandomTaskCpuInMhz();
+        this.memory = simulationConfig.getRandomTaskMemoryInMB();
+        this.disk = simulationConfig.getRandomTaskDiskInMB();
+        this.cpu = simulationConfig.getRandomTaskCpuInMhz();
     }
 
     public double getResponseTime() {

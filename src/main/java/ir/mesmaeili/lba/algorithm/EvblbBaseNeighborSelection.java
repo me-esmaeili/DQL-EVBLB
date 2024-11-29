@@ -11,9 +11,9 @@ import java.util.Set;
 public class EvblbBaseNeighborSelection implements NeighborSelector {
 
     private static final double EPSILON = 0.01;
-    private static final int C_MAX = 50;
-    private static final double S = 1.0;
-    private static final double NU = 10;
+    private static final int C_MAX = 2000;
+    private static final double S = 0.01;
+    private static final double NU = 5;
 
     @Override
     public Set<EdgeServer> findNeighbors(EdgeServer server, Collection<EdgeServer> allServers, int radius) {
@@ -22,7 +22,7 @@ public class EvblbBaseNeighborSelection implements NeighborSelector {
         double RD_n = EPSILON;
         for (int c = 1; c <= C_MAX; c++) {
             N_i = updateNeighbors(server, RD_n, allServers);
-            double newRD_N = RD_n + Math.min(radius, Math.max(0, S * (NU - N_i.size())));
+            double newRD_N = Math.min(radius, Math.max(0, RD_n + S * (NU - N_i.size())));
             if (newRD_N == RD_n) {
                 break;
             }

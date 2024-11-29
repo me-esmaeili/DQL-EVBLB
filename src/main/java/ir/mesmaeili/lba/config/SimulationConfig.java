@@ -17,7 +17,7 @@ import java.util.Random;
 @Setter
 public class SimulationConfig implements Serializable {
     private final static Random rand = new Random();
-    private int serverCount = 200;
+    private int serverCount = 30;
     private List<Point> serverLocations = new ArrayList<>();
     private List<EdgeServer> edgeServers = new ArrayList<>();
     private List<Integer> serverMemoryCapacityRange = Arrays.asList(4, 8, 16, 32, 64);
@@ -48,7 +48,7 @@ public class SimulationConfig implements Serializable {
 
     @JsonIgnore
     public double getRandomServerCpuInMhz() {
-        return 1000 + 100. * rand.nextInt(40);
+        return 1000 + 100. * rand.nextInt(35);
     }
 
     @JsonIgnore

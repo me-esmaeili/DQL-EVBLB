@@ -83,7 +83,7 @@ public class SimulatorApp {
 
     private static SimulationConfig createNewSimulationConfig() {
         SimulationConfig config = new SimulationConfig();
-        config.setTotalSimulationTime(500);
+        config.setTotalSimulationTime(100);
         config.setTaskUniformRange(new ImmutablePair<>(910, 910));
         config.setServerCount(100);
         config.setServerMaxQueueSize(Integer.MAX_VALUE);

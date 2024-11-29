@@ -13,9 +13,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EvblbConfig implements Serializable {
-    private double alpha = 0.1; // memory coefficient
-    private double beta = 0.1; // disk coefficient
-    private double gamma = 0.8; // cpu coefficient
+    private double alpha = 0.05; // memory coefficient
+    private double beta = 0.05; // disk coefficient
+    private double gamma = 0.9; // cpu coefficient
     private int PSI = 20;     // radius for select neighbors
     private Geometry voronoiTessellation;
 }

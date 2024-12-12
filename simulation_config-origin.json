@@ -1502,13 +1502,13 @@
     4000
   ],
   "poisonDskSamplingMinDistance": 7.5,
-  "serverMaxQueueSize": 5000,
+  "serverMaxQueueSize": 2147483647,
   "spaceX": 100,
   "spaceY": 100,
   "deltaT": 2.0,
-  "totalSimulationTime": 500.0,
+  "totalSimulationTime": 2000.0,
   "taskUniformRange": {
-    "1000": 1200
+    "910": 915
   },
   "bscount": 1000
 }

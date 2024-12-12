@@ -72,4 +72,9 @@ public class DQL_LBAlgorithm extends EvblbAlgorithm {
     public String resultDirPath() {
         return "/dql";
     }
+
+    @Override
+    public String getConfigStatus() {
+        return "";
+    }
 }

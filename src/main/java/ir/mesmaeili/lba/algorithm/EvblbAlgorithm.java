@@ -85,6 +85,11 @@ public class EvblbAlgorithm implements LBAlgorithm {
         return "/evblb";
     }
 
+    @Override
+    public String getConfigStatus() {
+        return "PSI" + config.getPSI();
+    }
+
     protected double getMaxCpuResource(List<EdgeServer> servers) {
         return servers.stream().mapToDouble(EdgeServer::getProcessingCapacity).max().orElse(0);
     }

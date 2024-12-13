@@ -73,7 +73,7 @@ public class SimulationStatisticResult {
     public void writeToCsv() {
         SimulationMetricResult result = toMetricResult();
         String dir = "result/" + lbAlgorithm.resultDirPath() + "/";
-        String simulationState = String.format("DeltaT-%.2f-SimulationTime-%.2f", getDeltaT(), getTotalSimulationTime());
+        String simulationState = String.format("DeltaT-%.2f-SimulationTime-%.2f-%s", getDeltaT(), getTotalSimulationTime(), lbAlgorithm.getConfigStatus());
         CsvUtils.writeMapToCsv(dir + String.format("LBF-%s.csv", simulationState), result.getLBFOverTimeMap());
         CsvUtils.writeMapToCsv(dir + String.format("throughput-%s.csv", simulationState), result.getThroughputOverTimeMap());
         CsvUtils.writeMapToCsv(dir + String.format("blockingRate-%s.csv", simulationState), result.getBlockingRateOverTimeMap());

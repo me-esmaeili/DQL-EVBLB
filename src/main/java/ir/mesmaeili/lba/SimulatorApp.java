@@ -21,6 +21,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -33,19 +34,20 @@ public class SimulatorApp {
     private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
     public static void main(String[] args) throws IOException {
-        SimulationConfig simulationConfig;
-        if (loadFromFile) {
-            simulationConfig = loadSimulationConfig();
-            if (simulationConfig == null) {
+        for (Integer psi : Arrays.asList(10)) {
+            SimulationConfig simulationConfig;
+            if (loadFromFile) {
+                simulationConfig = loadSimulationConfig();
+                if (simulationConfig == null) {
+                    simulationConfig = createNewSimulationConfig();
+                    saveSimulationConfig(simulationConfig, SIMULATION_CONFIG_FILE);
+                }
+            } else {
                 simulationConfig = createNewSimulationConfig();
                 saveSimulationConfig(simulationConfig, SIMULATION_CONFIG_FILE);
             }
-        } else {
-            simulationConfig = createNewSimulationConfig();
-            saveSimulationConfig(simulationConfig, SIMULATION_CONFIG_FILE);
-        }
 
-// EVBLB configuration
+//        EVBLB configuration
 //        log.info("Start simulation at {}", new Date());
 //        EvblbConfig evblbConfig;
 //        if (loadFromFile) {
@@ -59,26 +61,28 @@ public class SimulatorApp {
 //            saveSimulationConfig(evblbConfig, EVBLB_CONFIG_FILE);
 //        }
 
-        EvblbConfig evblbConfig = new EvblbConfig();
-        evblbConfig.setVoronoiTessellation(VoronoiUtils.generateDiagram(
-                simulationConfig.getSpaceX(),
-                simulationConfig.getSpaceY(),
-                simulationConfig.getServerLocations()));
+            EvblbConfig evblbConfig = new EvblbConfig();
+            evblbConfig.setVoronoiTessellation(VoronoiUtils.generateDiagram(
+                    simulationConfig.getSpaceX(),
+                    simulationConfig.getSpaceY(),
+                    simulationConfig.getServerLocations()));
 
-        LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, evblbConfig, 20, 50);
-        LBAlgorithm evblb = new EvblbAlgorithm(simulationConfig, evblbConfig);
+            evblbConfig.setPSI(psi);
+            LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, evblbConfig, 20, 50);
+            LBAlgorithm evblb = new EvblbAlgorithm(simulationConfig, evblbConfig);
 
-        SimulationState simulationState = new SimulationState();
-        Simulation simulation = new Simulation(evblb, simulationConfig, simulationState);
-        SimulationStatisticResult result = simulation.run();
-        log.info("Finish simulation at {}", new Date());
+            SimulationState simulationState = new SimulationState();
+            Simulation simulation = new Simulation(evblb, simulationConfig, simulationState);
+            SimulationStatisticResult result = simulation.run();
+            log.info("Finish simulation at {}", new Date());
 
-        SimulationChart simulationChart = new SimulationChart();
-        simulationChart.plot(result);
+            // print complete simulation report
+            result.printReport();
+            result.writeToCsv();
 
-        // print complete simulation report
-        result.printReport();
-        result.writeToCsv();
+            SimulationChart simulationChart = new SimulationChart();
+            simulationChart.plot(result);
+        }
     }
 
     private static SimulationConfig createNewSimulationConfig() {

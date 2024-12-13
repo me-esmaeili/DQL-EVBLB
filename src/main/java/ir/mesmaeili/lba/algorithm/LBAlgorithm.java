@@ -18,4 +18,5 @@ public interface LBAlgorithm {
     }
 
     String resultDirPath();
+    String getConfigStatus();
 }

@@ -44,6 +44,7 @@ public class Simulation {
         float currentSimulationTime = 0f;
         int curentRound = 1;
         double totalSimulationTime = simulationConfig.getTotalSimulationTime();
+        initializeTaskServerQueues(2);
         while (totalSimulationTime >= currentSimulationTime) {
             log.info("Start to round {} at time:{}", curentRound, currentSimulationTime);
             this.simulationState.setCurrentSimulationTime(currentSimulationTime); // store simulation time in range [0,totalRound*DeltaT]
@@ -56,7 +57,7 @@ public class Simulation {
             log.info("Tasks are generated at time " + currentSimulationTime);
 
             // schedule tasks over servers
-            scheduler.scheduleTasks(this.simulationState);
+            scheduler.scheduleTasks(this.simulationState, false);
             currentSimulationTime += simulationConfig.getDeltaT();
             curentRound++;
             try {
@@ -97,5 +98,17 @@ public class Simulation {
             taskQueue.add(task);
         }
         return taskQueue;
+    }
+
+    private void initializeTaskServerQueues(int taskGenerationRounds) {
+        Queue<Task> allTasks = new LinkedList<>();
+        for (int i = 0; i < taskGenerationRounds; i++) {
+            Queue<Task> tasks = generateTasks(0);
+            allTasks.addAll(tasks);
+        }
+        this.simulationState.addTasks(allTasks);
+        this.simulationState.setRoundTasks(allTasks);
+        simulationStatisticResult.addTasks(allTasks);
+        scheduler.scheduleTasks(this.simulationState, true);
     }
 }

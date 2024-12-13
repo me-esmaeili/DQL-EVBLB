@@ -7,6 +7,7 @@ import ir.mesmaeili.lba.model.EdgeServer;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,17 +30,19 @@ public class Scheduler {
         }
     }
 
-    public void scheduleTasks(SimulationState simulationState) {
+    public void scheduleTasks(SimulationState simulationState, boolean onlyEvenServers) {
         lbAlgorithm.dispatchTasksOverServers(simulationState);
 
         // calculated metrics with depend on dispatch tasks over algorithm e.g. LBF
         TaskCompleteListener listener = server -> server.calculateMetrics(simulationState.getCurrentRound(), simulationConfig);
-
-        // now execute tasks on servers
-        for (EdgeServer edgeServer : simulationState.getEdgeServers()) {
-            ExecutorService executor = serverExecutors.get(edgeServer);
-            executor.submit(new TaskExecutor(edgeServer, simulationConfig.getDeltaT(), simulationState.getCurrentSimulationTime(),
-                    simulationState.getCurrentRound(), listener));
+        List<EdgeServer> edgeServers = simulationState.getEdgeServers();
+        for (int i = 0; i < edgeServers.size(); i++) {
+            if (!onlyEvenServers || i % 2 == 0) {
+                EdgeServer edgeServer = edgeServers.get(i);
+                ExecutorService executor = serverExecutors.get(edgeServer);
+                executor.submit(new TaskExecutor(edgeServer, simulationConfig.getDeltaT(), simulationState.getCurrentSimulationTime(),
+                        simulationState.getCurrentRound(), listener));
+            }
         }
     }
 

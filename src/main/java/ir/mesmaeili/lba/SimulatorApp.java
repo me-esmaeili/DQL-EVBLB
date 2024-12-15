@@ -1,10 +1,7 @@
 package ir.mesmaeili.lba;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ir.mesmaeili.lba.algorithm.DQL_LBAlgorithm;
-import ir.mesmaeili.lba.algorithm.EvblbAlgorithm;
-import ir.mesmaeili.lba.algorithm.EvblbConfig;
-import ir.mesmaeili.lba.algorithm.LBAlgorithm;
+import ir.mesmaeili.lba.algorithm.*;
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
 import ir.mesmaeili.lba.model.EdgeServer;
@@ -21,7 +18,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -30,22 +26,22 @@ import java.util.List;
 public class SimulatorApp {
     private static final String SIMULATION_CONFIG_FILE = "simulation_config.json";
     private static final String EVBLB_CONFIG_FILE = "evblb_config.json";
-    private static final boolean loadFromFile = true;
+    private static final boolean loadFromFile = false;
     private static final ObjectMapper objectMapper = new CustomObjectMapper();
 
     public static void main(String[] args) throws IOException {
-        for (Integer psi : Arrays.asList(10)) {
-            SimulationConfig simulationConfig;
-            if (loadFromFile) {
-                simulationConfig = loadSimulationConfig();
-                if (simulationConfig == null) {
-                    simulationConfig = createNewSimulationConfig();
-                    saveSimulationConfig(simulationConfig, SIMULATION_CONFIG_FILE);
-                }
-            } else {
+//        for (Integer psi : List.of(10)) {
+        SimulationConfig simulationConfig;
+        if (loadFromFile) {
+            simulationConfig = loadSimulationConfig();
+            if (simulationConfig == null) {
                 simulationConfig = createNewSimulationConfig();
                 saveSimulationConfig(simulationConfig, SIMULATION_CONFIG_FILE);
             }
+        } else {
+            simulationConfig = createNewSimulationConfig();
+            saveSimulationConfig(simulationConfig, SIMULATION_CONFIG_FILE);
+        }
 
 //        EVBLB configuration
 //        log.info("Start simulation at {}", new Date());
@@ -61,35 +57,35 @@ public class SimulatorApp {
 //            saveSimulationConfig(evblbConfig, EVBLB_CONFIG_FILE);
 //        }
 
-            EvblbConfig evblbConfig = new EvblbConfig();
-            evblbConfig.setVoronoiTessellation(VoronoiUtils.generateDiagram(
-                    simulationConfig.getSpaceX(),
-                    simulationConfig.getSpaceY(),
-                    simulationConfig.getServerLocations()));
+        EvblbConfig evblbConfig = new EvblbConfig();
+        evblbConfig.setVoronoiTessellation(VoronoiUtils.generateDiagram(
+                simulationConfig.getSpaceX(),
+                simulationConfig.getSpaceY(),
+                simulationConfig.getServerLocations()));
 
-            evblbConfig.setPSI(psi);
-            LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, evblbConfig, 20, 50);
-            LBAlgorithm evblb = new EvblbAlgorithm(simulationConfig, evblbConfig);
+//        evblbConfig.setPSI(psi);
+        LBAlgorithm dql = new DQL_LBAlgorithm(simulationConfig, evblbConfig, 20, 50);
+        LBAlgorithm evblb = new EvblbAlgorithm(simulationConfig, evblbConfig);
+        LBAlgorithm lstm = new LSTMAlgorithm(simulationConfig, evblbConfig);
 
-            SimulationState simulationState = new SimulationState();
-            Simulation simulation = new Simulation(evblb, simulationConfig, simulationState);
-            SimulationStatisticResult result = simulation.run();
-            log.info("Finish simulation at {}", new Date());
+        SimulationState simulationState = new SimulationState();
+        Simulation simulation = new Simulation(lstm, simulationConfig, simulationState);
+        SimulationStatisticResult result = simulation.run();
+        log.info("Finish simulation at {}", new Date());
 
-            // print complete simulation report
-            result.printReport();
-            result.writeToCsv();
+        // print complete simulation report
+        result.printReport();
+        result.writeToCsv();
 
-            SimulationChart simulationChart = new SimulationChart();
-            simulationChart.plot(result);
-        }
+        SimulationChart simulationChart = new SimulationChart();
+        simulationChart.plot(result);
     }
 
     private static SimulationConfig createNewSimulationConfig() {
         SimulationConfig config = new SimulationConfig();
         config.setTotalSimulationTime(100);
         config.setTaskUniformRange(new ImmutablePair<>(910, 910));
-        config.setServerCount(100);
+        config.setServerCount(30);
         config.setServerMaxQueueSize(Integer.MAX_VALUE);
         config.setSpaceX(100);
         config.setSpaceY(100);

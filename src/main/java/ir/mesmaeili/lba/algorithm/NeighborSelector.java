@@ -6,5 +6,5 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface NeighborSelector {
-    Set<EdgeServer> findNeighbors(EdgeServer server, Collection<EdgeServer> allServers, int radius);
+    Set<EdgeServer> findNeighbors(EdgeServer server, Collection<EdgeServer> allServers, float radius);
 }

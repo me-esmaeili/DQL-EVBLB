@@ -16,6 +16,5 @@ public class EvblbConfig implements Serializable {
     private double alpha = 0.05; // memory coefficient
     private double beta = 0.05; // disk coefficient
     private double gamma = 0.9; // cpu coefficient
-    private int PSI = 10;     // radius for select neighbors
     private Geometry voronoiTessellation;
 }

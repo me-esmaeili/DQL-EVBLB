@@ -10,6 +10,7 @@ public interface LBAlgorithm {
     void dispatchTasksOverServers(SimulationState simulationState);
 
     NeighborSelector getNeighborSelector();
+    float calsulateNeighborRadius(SimulationState simulationState);
 
     EdgeServer findOptimalNeighbor(Collection<EdgeServer> servers);
 

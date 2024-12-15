@@ -16,7 +16,7 @@ public class EvblbBaseNeighborSelection implements NeighborSelector {
     private static final double NU = 5;
 
     @Override
-    public Set<EdgeServer> findNeighbors(EdgeServer server, Collection<EdgeServer> allServers, int radius) {
+    public Set<EdgeServer> findNeighbors(EdgeServer server, Collection<EdgeServer> allServers, float radius) {
         Set<EdgeServer> N_i = new HashSet<>();
         N_i.add(server);
         double RD_n = EPSILON;

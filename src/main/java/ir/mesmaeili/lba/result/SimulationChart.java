@@ -19,7 +19,7 @@ public class SimulationChart {
         XYSeries cpuUtilizationSeries = new XYSeries("Load Balancing Factor(LBF)");
         XYSeries responseTimeSeries = new XYSeries("Average Response Time");
         XYSeries makeSpanTimeSeries = new XYSeries("Average Makespan Time");
-        XYSeries throughputTimeSeries = new XYSeries("Average Throughput Time");
+        XYSeries throughputTimeSeries = new XYSeries("Average Throughput");
 
         SimulationMetricResult metricResult = result.toMetricResult();
         Map<Integer, Double> lbfData = metricResult.getLBFOverTimeMap();

@@ -2,14 +2,7 @@ package ir.mesmaeili.lba.algorithm;
 
 import ir.mesmaeili.lba.config.SimulationConfig;
 import ir.mesmaeili.lba.config.SimulationState;
-import ir.mesmaeili.lba.model.EdgeServer;
-import ir.mesmaeili.lba.model.Task;
-import ir.mesmaeili.lba.util.VoronoiUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Geometry;
-
-import java.util.Date;
-import java.util.Set;
 
 @Slf4j
 public class DQL_LBAlgorithm extends EvblbAlgorithm {
@@ -26,41 +19,10 @@ public class DQL_LBAlgorithm extends EvblbAlgorithm {
     }
 
     @Override
-    public synchronized void dispatchTasksOverServers(SimulationState simulationState) {
-        this.simulationState = simulationState;
-        double Mc = getMaxCpuResource(simulationState.getEdgeServers());
-        double Mm = getMaxMemResource(simulationState.getEdgeServers());
-        double Md = getMaxDiskResource(simulationState.getEdgeServers());
-
-        // Assign tasks to cloud server if they exceed max resources of edge servers
-        for (Task task : simulationState.getRoundTasks()) {
-            if (task.getCpu() > Mc || task.getMemory() > Mm || task.getDisk() > Md) {
-                assignToLeastLoadedCloudServer(task);
-            }
-        }
-        // Assign remaining tasks to edge servers
-        NeighborSelector neighborSelector = getNeighborSelector();
-
+    public float calsulateNeighborRadius(SimulationState simulationState) {
         // select optimal radius by DQL algorithm
         double lbf = simulationState.calculateLBF(simulationConfig.getDeltaT());
-        int radius = deepQLearning.selectOptimalRadius(lbf);
-        log.info("Select Radius {} as optimal radius in round {} at time: {}",
-                radius, simulationState.getCurrentRound(), new Date());
-
-        for (EdgeServer e_i : simulationState.getEdgeServers()) {
-
-            // now, with optimal radius, select neighbors same as EVBLB
-            Set<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers(), radius);
-
-            // find neighbor same as EVBLB
-            EdgeServer e_k = super.findOptimalNeighbor(neighbors);
-
-            // find region of desired server same as EVBLB
-            Geometry serverRegion = VoronoiUtils.getRegion(config.getVoronoiTessellation(), e_i);
-
-            // finally, assign all tasks of server to it optimal neighbor
-            assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);
-        }
+        return deepQLearning.selectOptimalRadius(lbf) * 1.0f;
     }
 
     @Override

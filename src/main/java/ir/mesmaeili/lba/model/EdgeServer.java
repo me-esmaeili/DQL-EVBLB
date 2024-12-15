@@ -29,6 +29,9 @@ public class EdgeServer implements Serializable {
     private double memoryCapacity; // in MB
     private double diskCapacity; // in GB
     private double processingCapacity; // in MHZ
+    @Getter
+    @Setter
+    private float psi = 10.0f; // neighbor selection radius
     @JsonIgnore
     private final Queue<Task> taskQueue = new LinkedList<>();
     @JsonIgnore

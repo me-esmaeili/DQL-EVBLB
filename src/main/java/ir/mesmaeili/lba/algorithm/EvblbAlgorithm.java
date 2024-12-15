@@ -39,7 +39,7 @@ public class EvblbAlgorithm implements LBAlgorithm {
         NeighborSelector neighborSelector = getNeighborSelector();
         for (EdgeServer e_i : simulationState.getEdgeServers()) {
             // find server neighbors
-            Set<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers(), config.getPSI());
+            Set<EdgeServer> neighbors = neighborSelector.findNeighbors(e_i, simulationState.getEdgeServers(), e_i.getPsi());
 
             // find optimal neighbor server
             EdgeServer e_k = findOptimalNeighbor(neighbors);
@@ -50,12 +50,20 @@ public class EvblbAlgorithm implements LBAlgorithm {
 
             // send all source servers to selected neighbor server to be executed
             assignTasksInRegionToServer(serverRegion, simulationState.getRoundTasks(), e_k);
+
+            // update server psi
+            e_i.setPsi(calsulateNeighborRadius(simulationState));
         }
     }
 
     @Override
     public NeighborSelector getNeighborSelector() {
         return new EvblbBaseNeighborSelection();
+    }
+
+    @Override
+    public float calsulateNeighborRadius(SimulationState simulationState) {
+        return 10;
     }
 
     @Override
@@ -87,7 +95,7 @@ public class EvblbAlgorithm implements LBAlgorithm {
 
     @Override
     public String getConfigStatus() {
-        return "PSI" + config.getPSI();
+        return "PSI" + calsulateNeighborRadius(simulationState);
     }
 
     protected double getMaxCpuResource(List<EdgeServer> servers) {
